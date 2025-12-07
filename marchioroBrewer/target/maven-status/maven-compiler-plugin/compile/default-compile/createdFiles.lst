@@ -1,0 +1,9 @@
+com/marchioro/brewer/controller/CidadeController.class
+com/marchioro/brewer/model/Estilo.class
+com/marchioro/brewer/BrewerApplication.class
+com/marchioro/brewer/model/Sabor.class
+com/marchioro/brewer/controller/UsuarioController.class
+com/marchioro/brewer/model/Cerveja.class
+com/marchioro/brewer/controller/CervejasController.class
+com/marchioro/brewer/model/Origem.class
+com/marchioro/brewer/controller/ClienteController.class

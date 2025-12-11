@@ -1,23 +1,52 @@
-# Maven
+########################
+# MAVEN / BUILD
+########################
 target/
+!.mvn/wrapper/maven-wrapper.jar
 
-# Eclipse
+########################
+# ECLIPSE
+########################
 .classpath
 .project
 .settings/
+.metadata/
+bin/
+tmp/
 
-# STS
+########################
+# SPRING TOOLS SUITE (STS)
+########################
 .springBeans
 *.launch
 
-# IntelliJ
+########################
+# INTELLIJ IDEA
+########################
 .idea/
 *.iml
+*.iws
 
-# Logs
+########################
+# LOGS
+########################
 *.log
 
-# SO / lixo
+########################
+# SISTEMA OPERACIONAL
+########################
 .DS_Store
 Thumbs.db
-.metadata/
+
+########################
+# ARQUIVOS TEMPORÁRIOS
+########################
+*.swp
+*.swo
+*.tmp
+
+########################
+# GIT ARTEFACTS DESNECESSÁRIOS
+########################
+*.orig
+

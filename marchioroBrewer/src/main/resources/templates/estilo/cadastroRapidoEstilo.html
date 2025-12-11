@@ -6,29 +6,24 @@
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title" id="tituloModalEstilo">Cadastro de estilo</h5>
-                <button type="button" class="btn-close"
-                        data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Cadastro de estilo</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
-
-                <form class="row g-3">
-
-                    <div class="col-12">
-                        <label for="nomeEstilo" class="form-label">Nome</label>
-                        <input id="nomeEstilo" type="text"
-                               class="form-control" autofocus>
-                    </div>
-
-                </form>
-
+                <div class="col-12">
+                    <label for="nomeEstilo" class="form-label">Nome</label>
+                    <input id="nomeEstilo" type="text" class="form-control" autofocus>
+                    <div class="invalid-feedback">Informe um nome válido.</div>
+                </div>
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Salvar</button>
-                <button type="button" class="btn btn-secondary"
-                        data-bs-dismiss="modal">Cancelar</button>
+                <button id="btnSalvarEstilo" type="button" class="btn btn-primary">Salvar</button>
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
             </div>
 
         </div>

@@ -3,164 +3,173 @@ package com.marchioro.brewer.model;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "cerveja")
 public class Cerveja {
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	
-	@NotBlank(message = "SKU é obrigatório")
-	private String sku;
-	@NotBlank(message = "O nome é obrigatório")
-	private String nome;
-	@Size(min=1, max=50, message = "A descrição é obrigatório e deve ter entre 1 e 50 caracteres")
-	private String descricao;
-	
-	private BigDecimal valor;
-	
-	@Column(name = "teor-alcoolico")
-	private BigDecimal teorAlcoolico;
-	
-	private BigDecimal comissao;
-	
-	@Enumerated(EnumType.STRING)
-	private Origem origem;
-	
-	@Enumerated(EnumType.STRING)
-	private Sabor sabor;
-	
-	@ManyToOne
-	@JoinColumn(name = "codigo-estilo")
-	private Estilo estilo;
-	
-	@Column(name = "quantidade-estoque")
-	private Integer quantidadeEstoque;
-	
-	public Cerveja() {
 
-	}
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	public String getSku() {
-		return sku;
-	}
+    /* SKU – obrigatório e curto */
+    @NotBlank(message = "SKU é obrigatório")
+    @Size(max = 50, message = "SKU deve ter no máximo 50 caracteres")
+    @Column(nullable = false, length = 50)
+    private String sku;
 
-	public void setSku(String sku) {
-		this.sku = sku;
-	}
+    /* Nome – obrigatório */
+    @NotBlank(message = "O nome é obrigatório")
+    @Size(max = 100, message = "O nome deve ter no máximo 100 caracteres")
+    @Column(nullable = false, length = 100)
+    private String nome;
 
-	public String getNome() {
-		return nome;
-	}
+    /* Descrição – obrigatória */
+    @NotBlank(message = "A descrição é obrigatória")
+    @Size(max = 255, message = "A descrição deve ter no máximo 255 caracteres")
+    @Column(nullable = false, length = 255)
+    private String descricao;
 
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
+    /* Valor da cerveja */
+    @Column(precision = 15, scale = 2)
+    private BigDecimal valor;
 
-	public String getDescricao() {
-		return descricao;
-	}
+    /* Teor alcoólico */
+    @Column(name = "teor_alcoolico", precision = 5, scale = 2)
+    private BigDecimal teorAlcoolico;
 
-	public void setDescricao(String descricao) {
-		this.descricao = descricao;
-	}
+    /* Comissão */
+    @Column(precision = 5, scale = 2)
+    private BigDecimal comissao;
 
-	public Long getId() {
-		return id;
-	}
+    /* Origem (ENUM) */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Origem origem;
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    /* Sabor (ENUM) */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Sabor sabor;
 
-	public BigDecimal getValor() {
-		return valor;
-	}
+    /* Estilo → FK */
+    @ManyToOne
+    @JoinColumn(name = "estilo_id", nullable = false)
+    private Estilo estilo;
 
-	public void setValor(BigDecimal valor) {
-		this.valor = valor;
-	}
+    /* Quantidade em estoque */
+    @Column(name = "quantidade_estoque")
+    private Integer quantidadeEstoque;
 
-	public BigDecimal getTeorAlcoolico() {
-		return teorAlcoolico;
-	}
+    public Cerveja() {}
 
-	public void setTeorAlcoolico(BigDecimal teorAlcoolico) {
-		this.teorAlcoolico = teorAlcoolico;
-	}
+    // Getters e Setters -----------------------------
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public BigDecimal getComissao() {
-		return comissao;
-	}
+    public String getSku() {
+        return sku;
+    }
 
-	public void setComissao(BigDecimal comissao) {
-		this.comissao = comissao;
-	}
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
 
-	public Origem getOrigem() {
-		return origem;
-	}
+    public String getNome() {
+        return nome;
+    }
 
-	public void setOrigem(Origem origem) {
-		this.origem = origem;
-	}
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-	public Sabor getSabor() {
-		return sabor;
-	}
+    public String getDescricao() {
+        return descricao;
+    }
 
-	public void setSabor(Sabor sabor) {
-		this.sabor = sabor;
-	}
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
 
-	public Estilo getEstilo() {
-		return estilo;
-	}
+    public BigDecimal getValor() {
+        return valor;
+    }
 
-	public void setEstilo(Estilo estilo) {
-		this.estilo = estilo;
-	}
+    public void setValor(BigDecimal valor) {
+        this.valor = valor;
+    }
 
-	public Integer getQuantidadeEstoque() {
-		return quantidadeEstoque;
-	}
+    public BigDecimal getTeorAlcoolico() {
+        return teorAlcoolico;
+    }
 
-	public void setQuantidadeEstoque(Integer quantidadeEstoque) {
-		this.quantidadeEstoque = quantidadeEstoque;
-	}
+    public void setTeorAlcoolico(BigDecimal teorAlcoolico) {
+        this.teorAlcoolico = teorAlcoolico;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(comissao);
-	}
+    public BigDecimal getComissao() {
+        return comissao;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Cerveja other = (Cerveja) obj;
-		return Objects.equals(comissao, other.comissao);
-	}	
-	
-	
+    public void setComissao(BigDecimal comissao) {
+        this.comissao = comissao;
+    }
+
+    public Origem getOrigem() {
+        return origem;
+    }
+
+    public void setOrigem(Origem origem) {
+        this.origem = origem;
+    }
+
+    public Sabor getSabor() {
+        return sabor;
+    }
+
+    public void setSabor(Sabor sabor) {
+        this.sabor = sabor;
+    }
+
+    public Estilo getEstilo() {
+        return estilo;
+    }
+
+    public void setEstilo(Estilo estilo) {
+        this.estilo = estilo;
+    }
+
+    public Integer getQuantidadeEstoque() {
+        return quantidadeEstoque;
+    }
+
+    public void setQuantidadeEstoque(Integer quantidadeEstoque) {
+        this.quantidadeEstoque = quantidadeEstoque;
+    }
+
+    // equals() e hashCode usando id ------------------
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof Cerveja))
+            return false;
+        Cerveja other = (Cerveja) obj;
+        return Objects.equals(id, other.id);
+    }
 }

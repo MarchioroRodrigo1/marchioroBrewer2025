@@ -1,16 +1,17 @@
 package com.marchioro.brewer.model;
 
 public enum Origem {
-	NACIONAL("Nacional"), INTERNACIONAL("Internacional");
 
-	private String descricao;
+    NACIONAL("Nacional"),
+    INTERNACIONAL("Internacional");
 
-	private Origem(String descricao) {
-		this.descricao = descricao;
-	}
+    private final String descricao;
 
-	public String getDescricao() {
-		return descricao;
-	}
+    Origem(String descricao) {
+        this.descricao = descricao;
+    }
 
+    public String getDescricao() {
+        return descricao;
+    }
 }

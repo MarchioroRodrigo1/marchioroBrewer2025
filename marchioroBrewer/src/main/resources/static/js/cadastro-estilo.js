@@ -1,14 +1,26 @@
+// ======================================================================
 // cadastro-estilo.js
+// Controle do Cadastro Rápido de Estilo via modal
+// Inclui: CSRF, loading spinner, limpeza do modal, efeitos visuais,
+// debug seguro e fallback para botão.
+// ======================================================================
+
 (function () {
-    // Helper de debug (evita erros se console undefined)
+
+    // ---------------------------------------------------------------
+    //  DEBUG SEGURO (evita erros se console estiver desativado)
+    // ---------------------------------------------------------------
     function debug(...args) {
         if (window.console && console.log) console.log("[cadastro-estilo]", ...args);
     }
 
-    // Tenta ler token CSRF se houver (Spring Security padrão)
+    // ---------------------------------------------------------------
+    //  LÊ O TOKEN CSRF DO SPRING SECURITY (se existir)
+    // ---------------------------------------------------------------
     function getCsrf() {
         const metaName = document.querySelector('meta[name="_csrf"]');
         const metaHeader = document.querySelector('meta[name="_csrf_header"]');
+
         if (metaName) {
             return {
                 header: metaHeader ? metaHeader.getAttribute('content') : 'X-CSRF-TOKEN',
@@ -18,111 +30,189 @@
         return null;
     }
 
-    // Função principal
+    // ======================================================================
+    //  FUNÇÃO PRINCIPAL
+    // ======================================================================
     function init() {
         debug("init() chamado");
+
+        // Seletores principais
         const btnSalvar = document.querySelector("#btnSalvarEstilo");
         const inputNome = document.querySelector("#nomeEstilo");
         const selectEstilo = document.querySelector("#estilo");
+        const modalElement = document.getElementById("modalCadastroRapidoEstilo");
+        const feedback = document.querySelector("#nomeEstilo + .invalid-feedback");
 
         debug("elementos encontrados:", { btnSalvar, inputNome, selectEstilo });
 
+        // ---------------------------------------------------------------
+        // FALLBACK — SE O BOTÃO NÃO TIVER ID EXATO
+        // ---------------------------------------------------------------
         if (!btnSalvar) {
-            // fallback: se botão tiver outro id, tenta encontrar por texto
-            const alt = Array.from(document.querySelectorAll("button")).find(b => b.textContent.trim().toLowerCase() === 'salvar');
+            const alt = Array.from(document.querySelectorAll("button"))
+                .find(b => b.textContent.trim().toLowerCase() === "salvar");
+
             if (alt) {
-                debug("Botão 'Salvar' encontrado por texto, atribuindo id temporário e listener");
+                debug("Botão salvar encontrado por texto");
                 alt.id = "btnSalvarEstilo";
             } else {
-                debug("Botão salvar não encontrado; listener não anexado");
+                debug("Nenhum botão 'Salvar' encontrado.");
             }
         }
 
         const btn = document.querySelector("#btnSalvarEstilo");
         if (!btn) {
-            debug("Nenhum botão disponível mesmo após fallback. Parando inicialização.");
+            debug("Abortando init: não há botão salvar.");
             return;
         }
 
-        // Adiciona listener (remove duplicados)
+        // Remove listeners antigos e adiciona o novo
         btn.removeEventListener("click", onClickSalvar);
         btn.addEventListener("click", onClickSalvar);
 
-        function onClickSalvar(evt) {
-            evt.preventDefault();
-            debug("click recebido em btnSalvarEstilo");
+        // ======================================================================
+        //  LIMPAR MODAL AO FECHAR (INCLUÍDO POR VOCÊ PEDIU)
+        // ======================================================================
+        if (modalElement) {
+            modalElement.addEventListener("hidden.bs.modal", () => {
 
-            const nome = (inputNome && inputNome.value) ? inputNome.value.trim() : "";
+                debug("Modal fechado — limpando campos");
+
+                if (inputNome) {
+                    inputNome.value = "";
+                    inputNome.classList.remove("is-invalid");
+                }
+
+                if (feedback) feedback.textContent = "";
+            });
+        }
+
+        // ======================================================================
+        //  EVENTO DO BOTÃO SALVAR
+        // ======================================================================
+        function onClickSalvar(e) {
+            e.preventDefault();
+            debug("Clique no salvar");
+
+            const nome = inputNome.value.trim();
+
+            // ---------------------------------------------------------------
+            //  VALIDAÇÃO BÁSICA
+            // ---------------------------------------------------------------
             if (!nome) {
-                if (inputNome) inputNome.classList.add("is-invalid");
-                debug("nome vazio -> abortando");
+                inputNome.classList.add("is-invalid");
+                if (feedback) feedback.textContent = "Informe um nome válido.";
                 return;
             }
-            if (inputNome) inputNome.classList.remove("is-invalid");
+
+            inputNome.classList.remove("is-invalid");
+            if (feedback) feedback.textContent = "";
 
             const estilo = { nome };
 
+            // ---------------------------------------------------------------
+            //  PREPARA SPINNER DE LOADING (ADICIONADO)
+            // ---------------------------------------------------------------
+            btn.disabled = true;
+            btn.dataset.originalText = btn.innerHTML;
+            btn.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status"></span>
+                Salvando...
+            `;
+
+            // ---------------------------------------------------------------
+            //  PREPARA HEADERS (CSRF + JSON)
+            // ---------------------------------------------------------------
             const csrf = getCsrf();
             const headers = { "Content-Type": "application/json" };
-            if (csrf && csrf.token) headers[csrf.header] = csrf.token;
+            if (csrf) headers[csrf.header] = csrf.token;
 
-            debug("Enviando POST /estilos/novo", estilo, headers);
+            debug("POST /estilos/novo", estilo, headers);
 
+            // ==================================================================
+            //  FETCH → envia estilo para o backend
+            // ==================================================================
             fetch("/estilos/novo", {
                 method: "POST",
                 headers,
                 body: JSON.stringify(estilo)
             })
-            .then(async (response) => {
-                debug("Resposta fetch:", response.status, response.statusText);
-                if (!response.ok) {
-                    const text = await response.text().catch(()=>null);
-                    debug("Resposta não OK, corpo:", text);
-                    alert("Erro ao salvar estilo. Verifique o servidor (console).");
-                    return;
-                }
-                return response.json();
-            })
-            .then((salvo) => {
-                if (!salvo) return;
-                debug("Estilo salvo retornado:", salvo);
+                .then(async response => {
 
-                // adiciona no select, seleciona e dispara change
-                if (selectEstilo) {
+                    debug("Resposta do servidor:", response.status);
+
+                    if (!response.ok) {
+
+                        // Se backend retornar texto (ex: "Estilo já existe")
+                        const msg = await response.text();
+
+                        inputNome.classList.add("is-invalid");
+                        if (feedback) feedback.textContent = msg || "Erro ao salvar estilo.";
+
+                        inputNome.focus();
+                        return null;
+                    }
+
+                    return response.json();
+                })
+                .then(salvo => {
+
+                    if (!salvo) return;
+
+                    debug("Estilo salvo:", salvo);
+
+                    // ==================================================================
+                    //  EFEITO VISUAL AO ADICIONAR (ADICIONADO)
+                    // ==================================================================
                     const option = document.createElement("option");
                     option.value = salvo.id;
                     option.textContent = salvo.nome;
                     option.selected = true;
+
+                    option.classList.add("option-flash"); // animação CSS
+
                     selectEstilo.appendChild(option);
-                    selectEstilo.dispatchEvent(new Event('change', { bubbles: true }));
-                }
 
-                // fecha modal com Bootstrap (se disponível)
-                try {
-                    const modalElement = document.getElementById("modalCadastroRapidoEstilo");
-                    if (modalElement) {
-                        const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                    selectEstilo.scrollTop = selectEstilo.scrollHeight;
+
+                    // remove classe após animação
+                    setTimeout(() => option.classList.remove("option-flash"), 1200);
+
+                    // ==================================================================
+                    //  FECHA MODAL COM BOOTSTRAP
+                    // ==================================================================
+                    try {
+                        const modal = bootstrap.Modal.getInstance(modalElement)
+                            || new bootstrap.Modal(modalElement);
                         modal.hide();
+                    } catch (e) {
+                        debug("Erro ao fechar modal:", e);
                     }
-                } catch (e) {
-                    debug("Bootstrap Modal não disponível ou erro ao fechar modal:", e);
-                }
 
-                if (inputNome) inputNome.value = "";
-            })
-            .catch((err) => {
-                debug("Erro fetch catch:", err);
-                alert("Erro inesperado. Veja console do navegador.");
-            });
+                })
+                .catch(err => {
+                    debug("Fetch error:", err);
+                    alert("Erro inesperado. Veja console.");
+                })
+                .finally(() => {
+
+                    // ==================================================================
+                    //  RESTAURA BOTÃO (ADICIONADO)
+                    // ==================================================================
+                    btn.disabled = false;
+                    btn.innerHTML = btn.dataset.originalText;
+                });
         }
     }
 
-    // Se DOM já estiver pronto, inicia imediatamente; senão, anexa listener
+    // ======================================================================
+    //  INICIALIZADOR
+    // ======================================================================
     if (document.readyState === "loading") {
-        debug("document.loading -> adicionando DOMContentLoaded");
+        debug("Aguardando DOM...");
         document.addEventListener("DOMContentLoaded", init);
     } else {
-        debug("document já pronto -> init imediato");
+        debug("DOM pronto — iniciando");
         init();
     }
 

@@ -34,6 +34,8 @@
         <main class="p-4">
             <section layout:fragment="conteudo"></section>
         </main>
+        
+        <div th:replace="~{layout/fragments/mensagens :: mensagens}"></div>
 
         <!-- FOOTER -->
         <div class="text-center" th:replace="~{layout/fragments/footer :: layout-footer}"></div>
@@ -47,6 +49,9 @@
 
 <!-- Bootstrap -->
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+
+<!-- Remove o estado de erro quando o usuário interagir -->
+<!--  <script th:src="@{/js/validacao-form.js}"></script> -->
 
 <!-- Tema claro/escuro -->
 <script th:src="@{/js/theme.js}"></script>

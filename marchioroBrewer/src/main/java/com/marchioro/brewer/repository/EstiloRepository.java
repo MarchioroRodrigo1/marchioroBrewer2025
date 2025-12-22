@@ -7,5 +7,7 @@ import com.marchioro.brewer.model.Estilo;
 
 @Repository
 public interface EstiloRepository extends JpaRepository<Estilo, Long>{
+	
+	boolean existsByNomeIgnoreCase(String nome);
 
 }

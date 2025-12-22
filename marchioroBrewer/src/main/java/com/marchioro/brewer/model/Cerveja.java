@@ -4,7 +4,12 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -34,33 +39,52 @@ public class Cerveja {
     private String descricao;
 
     /* Valor da cerveja */
+    @NotNull(message = "O valor é obrigatório")
+    @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
+    @Digits(integer = 13, fraction = 2)
+
     @Column(precision = 15, scale = 2)
     private BigDecimal valor;
 
     /* Teor alcoólico */
-    @Column(name = "teor_alcoolico", precision = 5, scale = 2)
+    @NotNull(message = "Informe o teor alcoólico")
+    @DecimalMin(value = "0.0", inclusive = false,
+            message = "O teor alcoólico deve ser maior que 0")
+    @DecimalMax(value = "100.0",
+            message = "O teor alcoólico não pode ser maior que 100")
+    @Column(nullable = false, name = "teor_alcoolico", precision = 5, scale = 2)
     private BigDecimal teorAlcoolico;
 
     /* Comissão */
-    @Column(precision = 5, scale = 2)
+    @NotNull(message = "Informe a comissao")
+    @DecimalMin(value = "0.0", inclusive = true,
+            message = "A comissao deve ser maior ou igual a 0")
+    @DecimalMax(value = "100.0",
+            message = "A comissao não pode ser maior que 100")
+    @Column(nullable = false, name = "comissao", precision = 5, scale = 2)
     private BigDecimal comissao;
 
     /* Origem (ENUM) */
+    @NotNull(message = "A origem deve ser informda")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Origem origem;
 
     /* Sabor (ENUM) */
+    @NotNull(message = "selecione um Sabor")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Sabor sabor;
 
     /* Estilo → FK */
-    @ManyToOne
+    @NotNull(message = "Selecione um estilo")
+    @ManyToOne(optional = false)
     @JoinColumn(name = "estilo_id", nullable = false)
     private Estilo estilo;
 
     /* Quantidade em estoque */
+    @NotNull(message = "Informe a quantidade em estoque")
+    @Min(value = 0, message = "O estoque deve ser maior ou igual a 0")
     @Column(name = "quantidade_estoque")
     private Integer quantidadeEstoque;
 

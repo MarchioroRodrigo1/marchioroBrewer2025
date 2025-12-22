@@ -1,6 +1,5 @@
 <div class="modal fade" id="modalCadastroRapidoEstilo"
-     tabindex="-1" aria-labelledby="tituloModalEstilo"
-     aria-hidden="true" th:fragment="modal">
+     tabindex="-1" aria-hidden="true" th:fragment="modal">
 
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -11,19 +10,15 @@
             </div>
 
             <div class="modal-body">
-                <div class="col-12">
-                    <label for="nomeEstilo" class="form-label">Nome</label>
-                    <input id="nomeEstilo" type="text" class="form-control" autofocus>
-                    <div class="invalid-feedback">Informe um nome válido.</div>
-                </div>
+                <label for="nomeEstilo" class="form-label">Nome</label>
+                <input id="nomeEstilo" type="text" class="form-control">
+                <div class="invalid-feedback"></div>
             </div>
 
             <div class="modal-footer">
                 <button id="btnSalvarEstilo" type="button" class="btn btn-primary">Salvar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
 
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    Cancelar
-                </button>
             </div>
 
         </div>

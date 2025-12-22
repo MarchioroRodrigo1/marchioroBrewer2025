@@ -23,7 +23,13 @@ public class EstilosController {
 
 	@PostMapping("/novo")
 	public ResponseEntity<?> salvar (@Valid @RequestBody Estilo estilo){
+		boolean existe = estiloRepository.existsByNomeIgnoreCase(estilo.getNome());
 		
+		if(existe) {
+			return ResponseEntity
+					.badRequest()
+					.body("Já existe um estilo com esse nome.");
+		}
 		Estilo salvo = estiloRepository.save(estilo);
 		
 		return ResponseEntity.ok(salvo); // devolve JSON do estilo criado

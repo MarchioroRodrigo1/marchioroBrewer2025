@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Erro</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="alert alert-danger">
+        <h4 class="alert-heading">Ops! Algo deu errado 😕</h4>
+
+        <p>
+            Ocorreu um erro inesperado ao processar sua solicitação.
+        </p>
+
+        <hr>
+
+        <p class="mb-0">
+            Tente novamente ou volte para a página inicial.
+        </p>
+    </div>
+
+    <a href="/" class="btn btn-secondary">Voltar</a>
+</div>
+
+</body>
+</html>

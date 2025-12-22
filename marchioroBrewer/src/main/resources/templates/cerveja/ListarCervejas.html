@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/LayoutPadrao}">
+
+<body>
+
+<!-- =========================================================
+     CONTEÚDO PRINCIPAL (injetado no layout padrão)
+========================================================== -->
+<section layout:fragment="conteudo">
+
+    <div class="container-fluid mt-4">
+
+        <!-- =================================================
+             TÍTULO DA PÁGINA
+        ================================================== -->
+        <h1 class="mb-4">Listagem de Cervejas</h1>
+
+        <!-- =================================================
+             FORMULÁRIO DE FILTRO (GET)
+             - Filtro por nome
+             - Filtro por estilo
+             - Mantém valores via param.*
+        ================================================== -->
+        <form method="get" class="row g-3 mb-3">
+
+            <!-- FILTRO POR NOME -->
+            <div class="col-md-4">
+                <input type="text"
+                       class="form-control"
+                       name="nome"
+                       placeholder="Nome da Cerveja"
+                       th:value="${param.nome}">
+            </div>
+
+            <!-- FILTRO POR ESTILO -->
+            <div class="col-md-4">
+                <select name="estilo" class="form-select">
+
+                    <!-- Opção padrão -->
+                    <option value="">Todos os estilos</option>
+
+                    <!-- Lista dinâmica de estilos -->
+                    <option th:each="e : ${estilos}"
+                            th:value="${e.id}"
+                            th:selected="${param.estilo == e.id.toString()}"
+                            th:text="${e.nome}">
+                    </option>
+
+                </select>
+            </div>
+
+            <!-- BOTÃO FILTRAR -->
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100">
+                    Filtrar
+                </button>
+            </div>
+
+        </form>
+
+        <!-- =================================================
+             TABELA DE LISTAGEM
+        ================================================== -->
+        <div class="table-responsive">
+
+            <table class="table table-striped table-hover align-middle">
+
+                <!-- CABEÇALHO DA TABELA -->
+                <thead class="table-dark">
+                <tr>
+                    <th>SKU</th>
+                    <th>Nome</th>
+                    <th>Estilo</th>
+                    <th>Valor</th>
+                    <th>Estoque</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+                </thead>
+
+                <!-- CORPO DA TABELA -->
+                <tbody>
+
+                <!-- =================================================
+                     LOOP DE CERVEJAS
+                     - Cada linha representa uma cerveja
+                ================================================== -->
+                <tr th:each="cerveja : ${cervejas}">
+
+                    <td th:text="${cerveja.sku}"></td>
+                    <td th:text="${cerveja.nome}"></td>
+                    <td th:text="${cerveja.estilo.nome}"></td>
+
+                    <!-- Formatação monetária -->
+                    <td th:text="${#numbers.formatDecimal(cerveja.valor,1,'POINT',2,'COMMA')}"></td>
+
+                    <td th:text="${cerveja.quantidadeEstoque}"></td>
+
+                    <!-- =================================================
+                         AÇÕES
+                         - Editar
+                         - Excluir
+                    ================================================== -->
+                    <td class="text-center">
+
+                        <!-- EDITAR -->
+                        <a class="btn btn-sm btn-outline-primary"
+                           th:href="@{/cervejas/{id}(id=${cerveja.id})}">
+                            <i class="fa fa-edit"></i>
+                            Editar
+                        </a>
+
+                        <!-- EXCLUIR -->
+                        <a class="btn btn-sm btn-outline-danger"
+                           th:href="@{/cervejas/excluir/{id}(id=${cerveja.id})}">
+                            <i class="fa fa-trash"></i>
+                        </a>
+
+                    </td>
+                </tr>
+
+                <!-- =================================================
+                     CASO A LISTA ESTEJA VAZIA
+                ================================================== -->
+                <tr th:if="${#lists.isEmpty(cervejas)}">
+                    <td colspan="6" class="text-center text-muted">
+                        Nenhuma cerveja cadastrada.
+                    </td>
+                </tr>
+
+                </tbody>
+
+            </table>
+        </div>
+
+        <!-- =================================================
+             PAGINAÇÃO
+             - Baseada em Page<Cerveja>
+             - Mantém filtros ativos
+        ================================================== -->
+        <nav th:if="${page.totalPages > 1}">
+            <ul class="pagination">
+
+                <!-- BOTÃO ANTERIOR -->
+                <li class="page-item"
+                    th:classappend="${page.first} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/cervejas(page=${page.number - 1},
+                                             nome=${param.nome},
+                                             estilo=${param.estilo})}">
+                        Anterior
+                    </a>
+                </li>
+
+                <!-- NÚMEROS DAS PÁGINAS -->
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                    th:classappend="${i == page.number} ? 'active'">
+
+                    <a class="page-link"
+                       th:text="${i + 1}"
+                       th:href="@{/cervejas(page=${i},
+                                             nome=${param.nome},
+                                             estilo=${param.estilo})}">
+                    </a>
+
+                </li>
+
+                <!-- BOTÃO PRÓXIMA -->
+                <li class="page-item"
+                    th:classappend="${page.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/cervejas(page=${page.number + 1},
+                                             nome=${param.nome},
+                                             estilo=${param.estilo})}">
+                        Próxima
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+
+    </div>
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="mensagens">
+
+    <!-- Mensagem de sucesso -->
+    <div class="alert alert-success alert-dismissible fade show"
+         th:if="${mensagemSucesso}">
+        <span th:text="${mensagemSucesso}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Mensagem de erro -->
+    <div class="alert alert-danger alert-dismissible fade show"
+         th:if="${mensagemErro}">
+        <span th:text="${mensagemErro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+</div>
+
+</body>
+</html>

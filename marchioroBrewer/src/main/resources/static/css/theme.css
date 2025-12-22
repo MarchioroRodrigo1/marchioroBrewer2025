@@ -252,3 +252,15 @@ textarea::placeholder {
 .theme-switch input:checked + .slider:before {
     transform: translateX(22px);
 }
+
+/*loading spinner no botão “Salvar”*/
+@keyframes flash-green {
+    0%   { background-color: #c8f7c5; }
+    50%  { background-color: #a1e7a0; }
+    100% { background-color: #ffffff; }
+}
+
+.option-flash {
+    animation: flash-green 1s ease-out;
+}
+

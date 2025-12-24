@@ -87,6 +87,10 @@ public class Cerveja {
     @Min(value = 0, message = "O estoque deve ser maior ou igual a 0")
     @Column(name = "quantidade_estoque")
     private Integer quantidadeEstoque;
+    
+    /*Ativo*/
+    @Column(nullable = false)
+    private boolean ativo = true;
 
     public Cerveja() {}
 
@@ -180,9 +184,19 @@ public class Cerveja {
         this.quantidadeEstoque = quantidadeEstoque;
     }
 
+
+    public boolean isAtivo() {
+		return ativo;
+	}
+
+	public void setAtivo(boolean ativo) {
+		this.ativo = ativo;
+	}
+    
     // equals() e hashCode usando id ------------------
 
-    @Override
+
+	@Override
     public int hashCode() {
         return Objects.hash(id);
     }

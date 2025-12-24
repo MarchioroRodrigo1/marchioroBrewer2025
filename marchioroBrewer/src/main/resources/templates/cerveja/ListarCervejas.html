@@ -7,68 +7,54 @@
 <body>
 
 <!-- =========================================================
-     CONTEÚDO PRINCIPAL (injetado no layout padrão)
+     CONTEÚDO PRINCIPAL
 ========================================================== -->
 <section layout:fragment="conteudo">
 
     <div class="container-fluid mt-4">
 
         <!-- =================================================
-             TÍTULO DA PÁGINA
+             TÍTULO
         ================================================== -->
         <h1 class="mb-4">Listagem de Cervejas</h1>
 
         <!-- =================================================
-             FORMULÁRIO DE FILTRO (GET)
-             - Filtro por nome
-             - Filtro por estilo
-             - Mantém valores via param.*
+             FILTRO
         ================================================== -->
-        <form method="get" class="row g-3 mb-3">
+        <form method="get" class="row g-3 mb-4">
 
-            <!-- FILTRO POR NOME -->
             <div class="col-md-4">
                 <input type="text"
-                       class="form-control"
                        name="nome"
-                       placeholder="Nome da Cerveja"
-                       th:value="${param.nome}">
+                       class="form-control"
+                       placeholder="Nome da cerveja"
+                       th:value="${filtro.nome}">
             </div>
 
-            <!-- FILTRO POR ESTILO -->
             <div class="col-md-4">
                 <select name="estilo" class="form-select">
-
-                    <!-- Opção padrão -->
                     <option value="">Todos os estilos</option>
-
-                    <!-- Lista dinâmica de estilos -->
                     <option th:each="e : ${estilos}"
                             th:value="${e.id}"
-                            th:selected="${param.estilo == e.id.toString()}"
+                            th:selected="${filtro.estilo != null and e.id == filtro.estilo}"
                             th:text="${e.nome}">
                     </option>
-
                 </select>
             </div>
 
-            <!-- BOTÃO FILTRAR -->
             <div class="col-md-2">
                 <button class="btn btn-primary w-100">
                     Filtrar
                 </button>
             </div>
-
         </form>
 
         <!-- =================================================
-             TABELA DE LISTAGEM
+             TABELA
         ================================================== -->
         <div class="table-responsive">
-
             <table class="table table-striped table-hover align-middle">
 
-                <!-- CABEÇALHO DA TABELA -->
                 <thead class="table-dark">
                 <tr>
                     <th>SKU</th>
@@ -80,29 +66,15 @@
                 </tr>
                 </thead>
 
-                <!-- CORPO DA TABELA -->
                 <tbody>
 
-                <!-- =================================================
-                     LOOP DE CERVEJAS
-                     - Cada linha representa uma cerveja
-                ================================================== -->
-                <tr th:each="cerveja : ${cervejas}">
-
+                <tr th:each="cerveja : ${page.content}">
                     <td th:text="${cerveja.sku}"></td>
                     <td th:text="${cerveja.nome}"></td>
                     <td th:text="${cerveja.estilo.nome}"></td>
-
-                    <!-- Formatação monetária -->
                     <td th:text="${#numbers.formatDecimal(cerveja.valor,1,'POINT',2,'COMMA')}"></td>
-
                     <td th:text="${cerveja.quantidadeEstoque}"></td>
 
-                    <!-- =================================================
-                         AÇÕES
-                         - Editar
-                         - Excluir
-                    ================================================== -->
                     <td class="text-center">
 
                         <!-- EDITAR -->
@@ -112,70 +84,56 @@
                             Editar
                         </a>
 
-                        <!-- EXCLUIR -->
-                        <a class="btn btn-sm btn-outline-danger"
-                           th:href="@{/cervejas/excluir/{id}(id=${cerveja.id})}">
+                        <!-- EXCLUIR (MODAL) -->
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalExcluir"
+                                th:attr="data-id=${cerveja.id}, data-nome=${cerveja.nome}">
                             <i class="fa fa-trash"></i>
-                        </a>
+<span class="d-none d-md-inline"> Excluir</span>
+                            
+                        </button>
 
                     </td>
                 </tr>
 
-                <!-- =================================================
-                     CASO A LISTA ESTEJA VAZIA
-                ================================================== -->
-                <tr th:if="${#lists.isEmpty(cervejas)}">
+                <tr th:if="${page.totalElements == 0}">
                     <td colspan="6" class="text-center text-muted">
                         Nenhuma cerveja cadastrada.
                     </td>
                 </tr>
 
                 </tbody>
-
             </table>
         </div>
 
         <!-- =================================================
              PAGINAÇÃO
-             - Baseada em Page<Cerveja>
-             - Mantém filtros ativos
         ================================================== -->
         <nav th:if="${page.totalPages > 1}">
             <ul class="pagination">
 
-                <!-- BOTÃO ANTERIOR -->
-                <li class="page-item"
-                    th:classappend="${page.first} ? 'disabled'">
+                <li class="page-item" th:classappend="${page.first} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/cervejas(page=${page.number - 1},
-                                             nome=${param.nome},
-                                             estilo=${param.estilo})}">
+                       th:href="@{/cervejas(page=${page.number - 1}, nome=${filtro.nome}, estilo=${filtro.estilo})}">
                         Anterior
                     </a>
                 </li>
 
-                <!-- NÚMEROS DAS PÁGINAS -->
                 <li class="page-item"
                     th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
                     th:classappend="${i == page.number} ? 'active'">
-
                     <a class="page-link"
                        th:text="${i + 1}"
-                       th:href="@{/cervejas(page=${i},
-                                             nome=${param.nome},
-                                             estilo=${param.estilo})}">
+                       th:href="@{/cervejas(page=${i}, nome=${filtro.nome}, estilo=${filtro.estilo})}">
                     </a>
-
                 </li>
 
-                <!-- BOTÃO PRÓXIMA -->
-                <li class="page-item"
-                    th:classappend="${page.last} ? 'disabled'">
+                <li class="page-item" th:classappend="${page.last} ? 'disabled'">
                     <a class="page-link"
-                       th:href="@{/cervejas(page=${page.number + 1},
-                                             nome=${param.nome},
-                                             estilo=${param.estilo})}">
-                        Próxima
+                       th:href="@{/cervejas(page=${page.number + 1}, nome=${filtro.nome}, estilo=${filtro.estilo})}">
+                        Próximo
                     </a>
                 </li>
 
@@ -183,6 +141,46 @@
         </nav>
 
     </div>
+
+    <!-- =========================================================
+         MODAL DE EXCLUSÃO
+    ========================================================== -->
+    <form id="formExcluir" method="post">
+        <div class="modal fade" id="modalExcluir" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmar exclusão</h5>
+                        <button type="button" class="btn-close"
+                                data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        Tem certeza que deseja excluir a cerveja
+                        <strong id="nomeCerveja"></strong>?
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-danger">
+                            Excluir
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- =========================================================
+         SCRIPT (DENTRO DO FRAGMENTO)
+    ========================================================== -->
+    <script th:src="@{/js/listar-cervejas.js}"></script>
 
 </section>
 

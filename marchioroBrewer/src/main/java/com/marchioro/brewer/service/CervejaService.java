@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.marchioro.brewer.dto.CervejaFiltro;
 import com.marchioro.brewer.model.Cerveja;
 import com.marchioro.brewer.model.Estilo;
 import com.marchioro.brewer.repository.CervejasRepository;
@@ -40,34 +41,77 @@ public class CervejaService {
             );
         }
 
+        // Garante que uma nova cerveja sempre nasce ativa
+        if (cerveja.isAtivo() != true) {
+            cerveja.setAtivo(true);
+        }
+
         repository.save(cerveja);
     }
 
-    // ------------------------------------------------------------
-    // Filtro centralizado (nome + estilo)
-    // ------------------------------------------------------------
-    public Page<Cerveja> filtrar(String nome, Long estiloId, Pageable pageable) {
+    public Page<Cerveja> filtrar(CervejaFiltro filtro, Pageable pageable){
 
-        // Normaliza filtros vazios
-        if (nome != null && nome.isBlank()) {
-            nome = null;
+        String nome = filtro.getNome();
+        if (nome != null) {
+            nome = nome.trim();
+            if (nome.isEmpty()) {
+                nome = null;
+            }
         }
 
-        if (estiloId == null) {
-            return repository.findByNomeContainingIgnoreCase(nome, pageable);
+        Long estilo = filtro.getEstilo();
+
+        boolean temNome = nome != null;
+        boolean temEstilo = estilo != null;
+
+        // --------------------------------------------------------
+        // Nenhum filtro → lista tudo ATIVO
+        // --------------------------------------------------------
+        if (!temNome && !temEstilo) {
+            return repository.findByAtivoTrue(pageable);
         }
 
-        return repository.findByNomeContainingIgnoreCaseAndEstiloId(
-                nome, estiloId, pageable
-        );
+        // --------------------------------------------------------
+        // Nome + Estilo
+        // --------------------------------------------------------
+        if (temNome && temEstilo) {
+            return repository
+                    .findByNomeContainingIgnoreCaseAndEstiloIdAndAtivoTrue(
+                            nome, estilo, pageable);
+        }
+
+        // --------------------------------------------------------
+        // Apenas Nome
+        // --------------------------------------------------------
+        if (temNome) {
+            return repository
+                    .findByNomeContainingIgnoreCaseAndAtivoTrue(nome, pageable);
+        }
+
+        // --------------------------------------------------------
+        // Apenas Estilo
+        // --------------------------------------------------------
+        return repository.findByEstiloIdAndAtivoTrue(estilo, pageable);
     }
-
-    // ------------------------------------------------------------
-    // Buscar por ID
-    // ------------------------------------------------------------
+    
     public Cerveja buscarPorCodigo(Long codigo) {
         return repository.findById(codigo)
+                .filter(Cerveja::isAtivo)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Cerveja não encontrada"));
+                        new IllegalArgumentException("Cerveja não encontrada ou inativa"));
     }
+
+    // ------------------------------------------------------------
+    // SOFT DELETE (exclusão lógica)
+    // ------------------------------------------------------------
+    @Transactional
+    public void excluir(Long id) {
+
+        Cerveja cerveja = repository.findById(id)
+            .orElseThrow(() ->
+                new IllegalArgumentException("Cerveja não encontrada"));
+
+        cerveja.setAtivo(false);
+    }
+
 }

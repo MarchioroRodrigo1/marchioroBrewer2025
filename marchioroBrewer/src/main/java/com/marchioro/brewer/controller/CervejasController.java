@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.marchioro.brewer.dto.CervejaFiltro;
 import com.marchioro.brewer.model.Cerveja;
 import com.marchioro.brewer.model.Origem;
 import com.marchioro.brewer.model.Sabor;
@@ -92,34 +93,26 @@ public class CervejasController {
         return "redirect:/cervejas";
     }
 
-    // ------------------------------------------------------------
-    // Listagem de cervejas (GET /cervejas)
-    // ------------------------------------------------------------
-    @GetMapping
-    public String listar(
-            @RequestParam(required = false, defaultValue = "") String nome,
-            @RequestParam(required = false) Long estilo,
-            @PageableDefault(size = 5) Pageable pageable,
-            Model model) {
+ // ------------------------------------------------------------
+//  Listagem de cervejas (GET /cervejas)
+// ------------------------------------------------------------
+@GetMapping
+public String listar(
+        CervejaFiltro filtro,               // DTO de filtro
+        @PageableDefault(size = 5) Pageable pageable,
+        Model model) {
 
-        // Delegamos TODA a lógica de filtro para o service
-        Page<Cerveja> page = cervejaService.filtrar(nome, estilo, pageable);
+    // Busca paginada usando o filtro
+    Page<Cerveja> page = cervejaService.filtrar(filtro, pageable);
 
-        // ISSO ERA O PRINCIPAL MOTIVO DE NÃO LISTAR
-        model.addAttribute("cervejas", page.getContent());
+    // Dados para a tela
+    model.addAttribute("page", page);
+    model.addAttribute("cervejas", page.getContent());
+    model.addAttribute("filtro", filtro);
+    model.addAttribute("estilos", estiloRepository.findAll());
 
-        // Usado para paginação
-        model.addAttribute("page", page);
-
-        // Mantém valores do filtro no formulário
-        model.addAttribute("nome", nome);
-        model.addAttribute("estilo", estilo);
-
-        // Lista de estilos para o select
-        model.addAttribute("estilos", estiloRepository.findAll());
-
-        return "cerveja/ListarCervejas";
-    }
+    return "cerveja/ListarCervejas";
+}
 
     // ------------------------------------------------------------
     // Edição de cerveja (GET /cervejas/{codigo})
@@ -140,4 +133,23 @@ public class CervejasController {
 
         return "cerveja/CadastroCerveja";
     }
+    
+ // ------------------------------------------------------------
+ // Exclusão lógica de cerveja (Soft Delete)
+ // ------------------------------------------------------------
+    @PostMapping("/excluir/{id}")
+    public String excluir(@PathVariable Long id,
+                          RedirectAttributes attributes) {
+
+        cervejaService.excluir(id);
+
+        attributes.addFlashAttribute(
+            "mensagem",
+            "Cerveja excluída com sucesso!"
+        );
+
+        return "redirect:/cervejas";
+    }
+
+
 }

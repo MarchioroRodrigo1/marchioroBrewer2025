@@ -8,18 +8,21 @@ import com.marchioro.brewer.model.Cerveja;
 
 public interface CervejasRepository extends JpaRepository<Cerveja, Long> {
 
+	 Page<Cerveja> findByAtivoTrue(Pageable pageable);
 
-	    Page<Cerveja> findByNomeContainingIgnoreCase(
+	    Page<Cerveja> findByNomeContainingIgnoreCaseAndAtivoTrue(
 	            String nome,
 	            Pageable pageable
 	    );
 
-	    Page<Cerveja> findByNomeContainingIgnoreCaseAndEstiloId(
+	    Page<Cerveja> findByNomeContainingIgnoreCaseAndEstiloIdAndAtivoTrue(
 	            String nome,
 	            Long estiloId,
 	            Pageable pageable
 	    );
-	
 
-}
-
+	    Page<Cerveja> findByEstiloIdAndAtivoTrue(
+	            Long estiloId,
+	            Pageable pageable
+	    );
+	}

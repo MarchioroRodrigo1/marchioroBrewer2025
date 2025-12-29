@@ -91,7 +91,7 @@
                                 data-bs-target="#modalExcluir"
                                 th:attr="data-id=${cerveja.id}, data-nome=${cerveja.nome}">
                             <i class="fa fa-trash"></i>
-<span class="d-none d-md-inline"> Excluir</span>
+							<span class="d-none d-md-inline"> Excluir</span>
                             
                         </button>
 
@@ -181,6 +181,7 @@
          SCRIPT (DENTRO DO FRAGMENTO)
     ========================================================== -->
     <script th:src="@{/js/listar-cervejas.js}"></script>
+    <script th:src="@{/js/cervejas.js}"></script>
 
 </section>
 

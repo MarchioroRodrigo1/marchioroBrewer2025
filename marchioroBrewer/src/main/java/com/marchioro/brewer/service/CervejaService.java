@@ -27,23 +27,12 @@ public class CervejaService {
 
     // ------------------------------------------------------------
     // Salvar cerveja garantindo Estilo gerenciado
-    // ------------------------------------------------------------
+    // ------------------------------------------------------------    
     @Transactional
     public void salvar(Cerveja cerveja) {
 
-        if (cerveja.getEstilo() != null && cerveja.getEstilo().getId() != null) {
-            Optional<Estilo> estilo =
-                    estiloRepository.findById(cerveja.getEstilo().getId());
-
-            cerveja.setEstilo(
-                    estilo.orElseThrow(() ->
-                            new IllegalArgumentException("Estilo inválido"))
-            );
-        }
-
-        // Garante que uma nova cerveja sempre nasce ativa
-        if (cerveja.isAtivo() != true) {
-            cerveja.setAtivo(true);
+        if (!cerveja.getEstilo().isAtivo()) {
+            throw new IllegalStateException("Estilo inativo");
         }
 
         repository.save(cerveja);

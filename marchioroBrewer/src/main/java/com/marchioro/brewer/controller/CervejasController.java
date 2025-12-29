@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.marchioro.brewer.dto.CervejaFiltro;
@@ -54,11 +53,13 @@ public class CervejasController {
         model.addAttribute("origens", Origem.values());
 
         // Lista de estilos (select)
-        model.addAttribute("estilos", estiloRepository.findAll());
+        model.addAttribute("estilos", estiloRepository.findByAtivoTrue());
+
 
         return "cerveja/CadastroCerveja";
     }
-
+    
+ 
     // ------------------------------------------------------------
     // Salvar cerveja (POST /cervejas/novo)
     // ------------------------------------------------------------
@@ -74,7 +75,7 @@ public class CervejasController {
 
             model.addAttribute("sabores", Sabor.values());
             model.addAttribute("origens", Origem.values());
-            model.addAttribute("estilos", estiloRepository.findAll());
+            model.addAttribute("estilos", estiloRepository.findByAtivoTrue());
 
             return "cerveja/CadastroCerveja";
         }
@@ -109,7 +110,7 @@ public String listar(
     model.addAttribute("page", page);
     model.addAttribute("cervejas", page.getContent());
     model.addAttribute("filtro", filtro);
-    model.addAttribute("estilos", estiloRepository.findAll());
+    model.addAttribute("estilos", estiloRepository.findByAtivoTrue());
 
     return "cerveja/ListarCervejas";
 }
@@ -126,7 +127,7 @@ public String listar(
         // Dados auxiliares do formulário
         model.addAttribute("sabores", Sabor.values());
         model.addAttribute("origens", Origem.values());
-        model.addAttribute("estilos", estiloRepository.findAll());
+        model.addAttribute("estilos", estiloRepository.findByAtivoTrue());
 
         // Reaproveita o formulário de cadastro
         model.addAttribute("cerveja", cerveja);

@@ -164,16 +164,17 @@
                     // ==================================================================
                     //  EFEITO VISUAL AO ADICIONAR (ADICIONADO)
                     // ==================================================================
-                    const option = document.createElement("option");
-                    option.value = salvo.id;
-                    option.textContent = salvo.nome;
-                    option.selected = true;
+					const option = document.createElement("option");
+					option.value = salvo.id;
+					option.textContent = salvo.nome;
 
-                    option.classList.add("option-flash"); // animação CSS
+					selectEstilo.appendChild(option);
 
-                    selectEstilo.appendChild(option);
+					// seleciona corretamente
+					selectEstilo.value = salvo.id;
 
-                    selectEstilo.scrollTop = selectEstilo.scrollHeight;
+					// força o Spring/Thymeleaf a reconhecer
+					selectEstilo.dispatchEvent(new Event("change", { bubbles: true }));
 
                     // remove classe após animação
                     setTimeout(() => option.classList.remove("option-flash"), 1200);
@@ -181,20 +182,15 @@
                     // ==================================================================
                     //  FECHA MODAL COM BOOTSTRAP
                     // ==================================================================
-                    try {
-                        const modal = bootstrap.Modal.getInstance(modalElement)
-                            || new bootstrap.Modal(modalElement);
-                        modal.hide();
-                    } catch (e) {
-                        debug("Erro ao fechar modal:", e);
-                    }
+					const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
+					modalInstance.hide();
 
-                })
-                .catch(err => {
-                    debug("Fetch error:", err);
-                    alert("Erro inesperado. Veja console.");
-                })
-                .finally(() => {
+					//  GARANTIA TOTAL: remove backdrop e estado travado
+					setTimeout(() => {
+					    document.body.classList.remove("modal-open");
+
+					    document.querySelectorAll(".modal-backdrop").forEach(b => b.remove());
+					}, 300);
 
                     // ==================================================================
                     //  RESTAURA BOTÃO (ADICIONADO)

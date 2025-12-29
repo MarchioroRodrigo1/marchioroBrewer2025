@@ -21,16 +21,21 @@ public class Estilo implements Serializable {
 
     @NotBlank(message = "O nome do estilo é obrigatório")
     @Size(min = 2, max = 50, message = "O nome deve ter entre 2 e 50 caracteres")
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 50, unique = true)
     private String nome;
 
     @JsonIgnore
     @OneToMany(mappedBy = "estilo")
     private List<Cerveja> cervejas;
 
+    @Column(nullable = false)
+    private Boolean ativo = true;
 
+    public Estilo() {
 
-    public Long getId() {
+	}
+
+	public Long getId() {
 		return id;
 	}
 
@@ -54,7 +59,15 @@ public class Estilo implements Serializable {
         this.cervejas = cervejas;
     }
 
-    @Override
+    public Boolean isAtivo() {
+		return Boolean.TRUE.equals(ativo);
+	}
+
+	public void setAtivo(Boolean ativo) {
+		this.ativo = ativo;
+	}
+
+	@Override
     public int hashCode() {
         return Objects.hash(id);
     }

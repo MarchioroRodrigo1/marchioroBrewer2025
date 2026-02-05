@@ -1,7 +1,5 @@
 package com.marchioro.brewer.service;
 
-import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -9,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.marchioro.brewer.dto.CervejaFiltro;
 import com.marchioro.brewer.model.Cerveja;
-import com.marchioro.brewer.model.Estilo;
 import com.marchioro.brewer.repository.CervejasRepository;
 import com.marchioro.brewer.repository.EstiloRepository;
 

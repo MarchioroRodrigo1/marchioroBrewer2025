@@ -1,0 +1,7 @@
+CREATE TABLE cidade (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    codigo_ibge VARCHAR(8) NOT NULL,
+    nome_cidade VARCHAR(50) NOT NULL,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB;

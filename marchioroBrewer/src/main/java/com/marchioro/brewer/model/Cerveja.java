@@ -1,6 +1,7 @@
 package com.marchioro.brewer.model;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.*;
@@ -42,7 +43,6 @@ public class Cerveja {
     @NotNull(message = "O valor é obrigatório")
     @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
     @Digits(integer = 13, fraction = 2)
-
     @Column(precision = 15, scale = 2)
     private BigDecimal valor;
 
@@ -87,6 +87,10 @@ public class Cerveja {
     @Min(value = 0, message = "O estoque deve ser maior ou igual a 0")
     @Column(name = "quantidade_estoque")
     private Integer quantidadeEstoque;
+    
+    // Uma cerveja pode estar em muitos itens de venda
+    @OneToMany(mappedBy = "cerveja")
+    private List<ItemVenda> itensVenda;
     
     /*Ativo*/
     @Column(nullable = false)
@@ -184,8 +188,15 @@ public class Cerveja {
         this.quantidadeEstoque = quantidadeEstoque;
     }
 
+    public List<ItemVenda> getItensVenda() {
+		return itensVenda;
+	}
 
-    public boolean isAtivo() {
+	public void setItensVenda(List<ItemVenda> itensVenda) {
+		this.itensVenda = itensVenda;
+	}
+
+	public boolean isAtivo() {
 		return ativo;
 	}
 

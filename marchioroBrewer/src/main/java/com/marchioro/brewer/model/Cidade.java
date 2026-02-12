@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,8 +33,16 @@ public class Cidade  implements Serializable{
     @Column(nullable = false, length = 50)
 	private String nomeCidade;
     
+    @NotBlank(message = "O nome da cidade deve ser preenchido")
+    @Column(nullable = false, length = 2)
+    private String uf; 
+    
     @Column(nullable = false)
 	private Boolean ativo = true;
+    
+    @ManyToOne
+    @JoinColumn(name = "estado_id")
+    private Estado estado;
 
 	public Cidade() {
 		
@@ -69,10 +79,34 @@ public class Cidade  implements Serializable{
 	public void setAtivo(Boolean ativo) {
 		this.ativo = ativo;
 	}
+	
+	
+
+	public Estado getEstado() {
+		return estado;
+	}
+
+	public void setEstado(Estado estado) {
+		this.estado = estado;
+	}
+
+	public Boolean getAtivo() {
+		return ativo;
+	}
 
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
+	}
+	
+	
+
+	public String getUf() {
+		return uf;
+	}
+
+	public void setUf(String uf) {
+		this.uf = uf;
 	}
 
 	@Override
@@ -86,4 +120,5 @@ public class Cidade  implements Serializable{
 		Cidade other = (Cidade) obj;
 		return Objects.equals(id, other.id);
 	}
+
 }

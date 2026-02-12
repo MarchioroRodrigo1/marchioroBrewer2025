@@ -1,5 +1,7 @@
 package com.marchioro.brewer.controller;
 
+import java.util.List;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -9,9 +11,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.marchioro.brewer.model.Cidade;
 import com.marchioro.brewer.model.Cliente;
 import com.marchioro.brewer.model.Endereco;
+import com.marchioro.brewer.model.Estado;
+import com.marchioro.brewer.model.Regiao;
 import com.marchioro.brewer.repository.CidadeRepository;
 import com.marchioro.brewer.repository.ClienteRepository;
 import com.marchioro.brewer.repository.EstadoRepository;
@@ -51,60 +54,120 @@ public class ClienteController {
         return "cliente/ListarClientes";
     }
 
-    // =========================
-    // NOVO CLIENTE
-    // =========================
-    @GetMapping("/novo")
-    public String novo(Model model) {
+ // =========================
+ // NOVO CLIENTE
+ // =========================
+ @GetMapping("/novo")
+ public String novo(Model model) {
 
-        Cliente cliente = new Cliente();
-        cliente.setEndereco(new Endereco());
+     Cliente cliente = new Cliente();
+     cliente.setEndereco(new Endereco());
 
-        model.addAttribute("cliente", cliente);
-        model.addAttribute("regioes", regiaoRepository.findAll());
-        model.addAttribute("estados", estadoRepository.findAll());
-        model.addAttribute("cidades", cidadeRepository.findByAtivoTrue());
+     model.addAttribute("cliente", cliente);
 
-        return "cliente/CadastroCliente";
-    }
+     // Carrega apenas regiões no início
+     model.addAttribute("regioes", regiaoRepository.findByAtivoTrue());
 
+     // IMPORTANTE:
+     // Estados e cidades iniciam vazios
+     // Serão carregados via JS conforme seleção
+     model.addAttribute("estados", List.of());
+     model.addAttribute("cidades", List.of());
 
-
-    // =========================
-    // SALVAR CLIENTE
-    // =========================
-    @PostMapping("/salvar")
-    public String salvar(
-            @Valid Cliente cliente,
-            BindingResult result,
-            Model model) {
-
-        if (result.hasErrors()) {
-
-            model.addAttribute("regioes", regiaoRepository.findAll());
-            model.addAttribute("estados", estadoRepository.findAll());
-            model.addAttribute("cidades", cidadeRepository.findByAtivoTrue());
-
-            return "cliente/CadastroCliente";
-        }
-
-        clienteRepository.save(cliente);
-        return "redirect:/clientes/novo";
-    }
+     return "cliente/CadastroCliente";
+ }
 
 
 
-    // =========================
-    // EDITAR CLIENTE
-    // =========================
-    @GetMapping("/{id}")
-    public String editar(@PathVariable Long id, Model model) {
 
-        Cliente cliente = clienteService.buscarPorId(id);
-        model.addAttribute("cliente", cliente);
+ @PostMapping("/salvar")
+ public String salvar(
+         @Valid Cliente cliente,
+         BindingResult result,
+         Model model) {
 
-        return "cliente/CadastroCliente";
-    }
+     if (result.hasErrors()) {
+
+         // Sempre carrega regiões
+         model.addAttribute("regioes", regiaoRepository.findByAtivoTrue());
+
+         // Se já existe estado, carrega estados da região dele
+         if (cliente.getEndereco() != null &&
+             cliente.getEndereco().getCidade() != null &&
+             cliente.getEndereco().getCidade().getEstado() != null) {
+
+             Estado estado = cliente.getEndereco().getCidade().getEstado();
+             Regiao regiao = estado.getRegiao();
+
+             model.addAttribute(
+                 "estados",
+                 estadoRepository.findByRegiaoIdAndAtivoTrue(regiao.getId())
+             );
+
+             model.addAttribute(
+                 "cidades",
+                 cidadeRepository.findByEstadoIdAndAtivoTrue(estado.getId())
+             );
+
+         } else {
+             // fallback seguro
+             model.addAttribute("estados", List.of());
+             model.addAttribute("cidades", List.of());
+         }
+
+         return "cliente/CadastroCliente";
+     }
+
+     clienteRepository.save(cliente);
+     return "redirect:/clientes/novo";
+ }
+
+
+
+
+//=========================
+//EDITAR CLIENTE
+//=========================
+@GetMapping("/{id}")
+public String editar(@PathVariable Long id, Model model) {
+
+  Cliente cliente = clienteService.buscarPorId(id);
+  model.addAttribute("cliente", cliente);
+
+  // Sempre carrega regiões
+  model.addAttribute("regioes", regiaoRepository.findByAtivoTrue());
+
+  // Se o cliente tem endereço completo, resolve os combos
+  if (cliente.getEndereco() != null &&
+      cliente.getEndereco().getCidade() != null &&
+      cliente.getEndereco().getCidade().getEstado() != null) {
+
+      Estado estado = cliente.getEndereco().getCidade().getEstado();
+      Regiao regiao = estado.getRegiao();
+
+      // Necessário para marcar a região no select
+      model.addAttribute("regiaoSelecionada", regiao);
+
+      // Estados filtrados pela região
+      model.addAttribute(
+          "estados",
+          estadoRepository.findByRegiaoIdAndAtivoTrue(regiao.getId())
+      );
+
+      // Cidades filtradas pelo estado
+      model.addAttribute(
+          "cidades",
+          cidadeRepository.findByEstadoIdAndAtivoTrue(estado.getId())
+      );
+
+  } else {
+      model.addAttribute("estados", List.of());
+      model.addAttribute("cidades", List.of());
+  }
+
+  return "cliente/CadastroCliente";
+}
+
 
     // =========================
     // EXCLUSÃO LÓGICA

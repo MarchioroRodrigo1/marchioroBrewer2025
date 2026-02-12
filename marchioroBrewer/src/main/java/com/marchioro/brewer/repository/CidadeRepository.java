@@ -9,6 +9,10 @@ import com.marchioro.brewer.model.Cidade;
 
 @Repository
 public interface CidadeRepository extends JpaRepository<Cidade, Long>{
-	 List<Cidade> findByAtivoTrue();
+	 List<Cidade>findByAtivoTrue();
+
+
+	    // Usado para carregar cidades conforme estado selecionado
+	    List<Cidade> findByEstadoIdAndAtivoTrue(Long estadoId);
 
 }

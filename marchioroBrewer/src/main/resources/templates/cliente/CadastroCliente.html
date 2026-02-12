@@ -144,7 +144,7 @@
             <div class="row">
                 <div class="form-group col-sm-4">
                     <label>Região</label>
-                    <select class="form-control">
+                    <select class="form-control" id="regiao">
                         <option value="">Selecione</option>
                         <option th:each="r : ${regioes}"
                                 th:value="${r.id}"
@@ -155,7 +155,7 @@
 
                 <div class="form-group col-sm-4">
                     <label>Estado</label>
-                    <select class="form-control">
+                    <select class="form-control" id="estado">
                         <option value="">Selecione</option>
                         <option th:each="e : ${estados}"
                                 th:value="${e.id}"
@@ -174,7 +174,7 @@
             <div class="row">
                 <div class="form-group col-sm-4">
                     <label>Cidade</label>
-                    <select class="form-control"
+                    <select class="form-control" id="cidade"
                             th:field="*{endereco.cidade}">
                         <option value="">Selecione</option>
                         <option th:each="c : ${cidades}"

@@ -23,7 +23,7 @@ public class EstadoController {
 
     @GetMapping("/por-regiao/{regiaoId}")
     public List<Estado> buscarPorRegiao(@PathVariable Long regiaoId) {
-        return estadoRepository.findByRegiaoIdAndAtivoTrue(regiaoId);
+    	return estadoRepository.findByRegiaoIdAndAtivoTrue(regiaoId);
     }
 }
 

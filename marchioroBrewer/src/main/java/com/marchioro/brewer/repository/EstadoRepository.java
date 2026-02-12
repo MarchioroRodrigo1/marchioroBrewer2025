@@ -10,6 +10,6 @@ import com.marchioro.brewer.model.Estado;
 @Repository
 public interface EstadoRepository  extends JpaRepository<Estado, Long>{
 	
-	 List<Estado> findByRegiaoIdAndAtivoTrue(Long regiaoId);
+	  List<Estado> findByRegiaoIdAndAtivoTrue(Long regiaoId);
 
 }

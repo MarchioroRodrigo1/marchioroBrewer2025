@@ -1,7 +1,12 @@
 package com.marchioro.brewer.controller;
 
 import java.util.List;
+import java.util.jar.Attributes;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -9,6 +14,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.marchioro.brewer.model.Cliente;
@@ -27,8 +34,9 @@ import jakarta.validation.Valid;
 @RequestMapping("/clientes")
 public class ClienteController {
 
+	 @Autowired
+	private final ClienteRepository clienteRepository;
     private final ClienteService clienteService;
-    private final ClienteRepository clienteRepository;
     private final CidadeRepository cidadeRepository;
     private final EstadoRepository estadoRepository;
     private final RegiaoRepository regiaoRepository;
@@ -48,11 +56,28 @@ public class ClienteController {
     // =========================
     // LISTAGEM
     // =========================
+    // LISTAR + FILTRAR
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("clientes", clienteService.listarAtivos());
-        return "cliente/ListarClientes";
+    public ModelAndView listar(
+            @RequestParam(required = false) String nomeCliente,
+            @PageableDefault(size = 2) Pageable pageable) {
+
+        Page<Cliente> page;
+
+        if (nomeCliente != null && !nomeCliente.isEmpty()) {
+            page = clienteRepository
+                    .findByNomeClienteContainingIgnoreCaseAndAtivoTrue(nomeCliente, pageable);
+        } else {
+            page = clienteRepository.findByAtivoTrue(pageable);
+        }
+
+        ModelAndView mv = new ModelAndView("cliente/ListagemCliente");
+        mv.addObject("page", page);
+        mv.addObject("nomeCliente", nomeCliente);
+
+        return mv;
     }
+
 
  // =========================
  // NOVO CLIENTE
@@ -79,12 +104,15 @@ public class ClienteController {
 
 
 
-
+//=========================
+// SALVAR CLIENTE
+// =========================
  @PostMapping("/salvar")
  public String salvar(
          @Valid Cliente cliente,
          BindingResult result,
-         Model model) {
+         Model model,
+         RedirectAttributes attributes) {
 
      if (result.hasErrors()) {
 
@@ -118,9 +146,28 @@ public class ClienteController {
          return "cliente/CadastroCliente";
      }
 
+     // =====================================================
+     // REMOVE MÁSCARAS (salva somente números no banco)
+     // =====================================================
+     if (cliente.getDocumento() != null) {
+         cliente.setDocumento(
+             cliente.getDocumento().replaceAll("\\D", "")
+         );
+     }
+
+     if (cliente.getTelefone() != null) {
+         cliente.setTelefone(
+             cliente.getTelefone().replaceAll("\\D", "")
+         );
+     }
+
      clienteRepository.save(cliente);
+     
+     attributes.addFlashAttribute("mensagemSucesso", "Cliente salvo com sucesso...!");
+
      return "redirect:/clientes/novo";
  }
+
 
 
 
@@ -128,61 +175,48 @@ public class ClienteController {
 //=========================
 //EDITAR CLIENTE
 //=========================
-@GetMapping("/{id}")
-public String editar(@PathVariable Long id, Model model) {
+ @GetMapping("/editar/{id}")
+ public String editar(@PathVariable Long id, Model model) {
 
-  Cliente cliente = clienteService.buscarPorId(id);
-  model.addAttribute("cliente", cliente);
+     Cliente cliente = clienteRepository.findById(id)
+             .orElseThrow(() -> new IllegalArgumentException("Cliente inválido"));
 
-  // Sempre carrega regiões
-  model.addAttribute("regioes", regiaoRepository.findByAtivoTrue());
+     model.addAttribute("cliente", cliente);
 
-  // Se o cliente tem endereço completo, resolve os combos
-  if (cliente.getEndereco() != null &&
-      cliente.getEndereco().getCidade() != null &&
-      cliente.getEndereco().getCidade().getEstado() != null) {
+     // Carrega todas as regiões
+     model.addAttribute("regioes", regiaoRepository.findByAtivoTrue());
 
-      Estado estado = cliente.getEndereco().getCidade().getEstado();
-      Regiao regiao = estado.getRegiao();
+     // Recupera dados encadeados
+     Regiao regiaoSelecionada =
+             cliente.getEndereco().getCidade().getEstado().getRegiao();
 
-      // Necessário para marcar a região no select
-      model.addAttribute("regiaoSelecionada", regiao);
+     Estado estadoSelecionado =
+             cliente.getEndereco().getCidade().getEstado();
 
-      // Estados filtrados pela região
-      model.addAttribute(
-          "estados",
-          estadoRepository.findByRegiaoIdAndAtivoTrue(regiao.getId())
-      );
+     // Carrega estados da região
+     model.addAttribute("estados",
+             estadoRepository.findByRegiaoIdAndAtivoTrue(regiaoSelecionada.getId()));
 
-      // Cidades filtradas pelo estado
-      model.addAttribute(
-          "cidades",
-          cidadeRepository.findByEstadoIdAndAtivoTrue(estado.getId())
-      );
+     // Carrega cidades do estado
+     model.addAttribute("cidades",
+             cidadeRepository.findByEstadoIdAndAtivoTrue(estadoSelecionado.getId()));
 
-  } else {
-      model.addAttribute("estados", List.of());
-      model.addAttribute("cidades", List.of());
-  }
+     return "cliente/CadastroCliente";
+ }
+ 
+ 
+//SOFT DELETE
+ @PostMapping("/excluir/{id}")
+ public String excluir(@PathVariable Long id, RedirectAttributes attributes) {
+     Cliente cliente = clienteRepository.findById(id)
+             .orElseThrow(() -> new IllegalArgumentException("Cliente inválido"));
 
-  return "cliente/CadastroCliente";
-}
+     cliente.setAtivo(false);
+     clienteRepository.save(cliente);
+     
+     attributes.addFlashAttribute("mensagemSucesso", "Cliente excluído com sicesso...!");
 
+     return "redirect:/clientes";
+ }
 
-    // =========================
-    // EXCLUSÃO LÓGICA
-    // =========================
-    @PostMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id,
-                          RedirectAttributes attributes) {
-
-        clienteService.excluir(id);
-
-        attributes.addFlashAttribute(
-            "mensagem",
-            "Cliente excluído com sucesso!"
-        );
-
-        return "redirect:/clientes";
-    }
 }

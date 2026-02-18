@@ -1,58 +1,64 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:th="http://www.thymeleaf.org"
-      layout:decorate="~{layout/LayoutPadrao}">
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/LayoutPadrao}">
 
 <head>
-    <title>Cadastro de cliente</title>
+<title>Cadastro de cliente</title>
 </head>
 
 <section layout:fragment="conteudo">
 
-    <div class="container-fluid mt-4">
-        <h1 class="mb-4">Cadastro de cliente</h1>
-    </div>
+	<div class="container-fluid mt-4">
+		<h1 class="mb-4">Cadastro de cliente</h1>
+	</div>
 
-    <div class="container-fluid">
+	<div class="container-fluid">
 
-        <form th:action="@{/clientes/salvar}"
-              th:object="${cliente}"
-              method="post">
+		<form th:action="@{/clientes/salvar}" th:object="${cliente}"
+			method="post">
+			
+			 <!-- =====================================================
+                 ⚠ ID OCULTO (OBRIGATÓRIO PARA UPDATE)
+                 Sem isso o Hibernate faz INSERT
+            ====================================================== -->
+            <input type="hidden" th:field="*{id}" />
 
-            <!-- NOME -->
-            <div class="row">
-                <div class="form-group col-sm-12">
-                    <label for="nomeCliente">Nome</label>
-                    <input id="nomeCliente"
-                           type="text"
-                           class="form-control"
-                           th:field="*{nomeCliente}"
-                           th:classappend="${#fields.hasErrors('nomeCliente')} ? 'is-invalid'"/>
+			<!-- NOME -->
+			<div class="row">
+				<div class="form-group col-sm-12">
+					<label for="nomeCliente">Nome</label> <input id="nomeCliente"
+						type="text" class="form-control" th:field="*{nomeCliente}"
+						th:classappend="${#fields.hasErrors('nomeCliente')} ? 'is-invalid'" />
 
-                    <div class="invalid-feedback"
-                         th:if="${#fields.hasErrors('nomeCliente')}"
-                         th:errors="*{nomeCliente}">
-                    </div>
-                </div>
-            </div>
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('nomeCliente')}"
+						th:errors="*{nomeCliente}"></div>
+				</div>
+			</div>
 
-            <!-- TIPO PESSOA + DOCUMENTO -->
-            <div class="row">
+			<!-- TIPO PESSOA + DOCUMENTO -->
+			 <div class="row">
+
+                <!-- Tipo Pessoa -->
                 <div class="form-group col-sm-4">
                     <label>Tipo pessoa</label>
 
                     <div th:classappend="${#fields.hasErrors('tipoPessoa')} ? 'is-invalid'">
+
                         <label class="me-3">
-                            <input type="radio"
+                            <input type="radio" id="radios"
                                    th:field="*{tipoPessoa}"
                                    value="FISICA"> Física
                         </label>
+
                         <label>
-                            <input type="radio"
+                            <input type="radio" id="radios"
                                    th:field="*{tipoPessoa}"
                                    value="JURIDICA"> Jurídica
                         </label>
+
                     </div>
 
                     <div class="invalid-feedback d-block"
@@ -61,12 +67,14 @@
                     </div>
                 </div>
 
+                <!-- Documento -->
                 <div class="form-group col-sm-8">
                     <label for="documento">CPF / CNPJ</label>
+
                     <input id="documento"
                            class="form-control"
                            th:field="*{documento}"
-                           th:classappend="${#fields.hasErrors('documento')} ? 'is-invalid'"/>
+                           th:classappend="${#fields.hasErrors('documento')} ? 'is-invalid'" />
 
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('documento')}"
@@ -75,14 +83,46 @@
                 </div>
             </div>
 
-            <!-- TELEFONE + EMAIL -->
+			<!-- ENDEREÇO -->
+			<div class="row">
+				<div class="form-group col-sm-4">
+					<label>Logradouro</label> <input class="form-control"
+						th:field="*{endereco.logradouro}"
+						th:classappend="${#fields.hasErrors('endereco.logradouro')} ? 'is-invalid'" />
+
+					<div class="invalid-feedback" th:errors="*{endereco.logradouro}">
+					</div>
+				</div>
+
+				<div class="form-group col-sm-4">
+					<label>Número</label> <input class="form-control"
+						th:field="*{endereco.numero}"
+						th:classappend="${#fields.hasErrors('endereco.numero')} ? 'is-invalid'" />
+
+					<div class="invalid-feedback" th:errors="*{endereco.numero}">
+					</div>
+				</div>
+
+				<div class="form-group col-sm-4">
+					<label>Complemento</label> <input class="form-control"
+						th:field="*{endereco.complemento}"
+						th:classappend="${#fields.hasErrors('endereco.complemento')} ? 'is-invalid'" />
+
+					<div class="invalid-feedback" th:errors="*{endereco.complemento}">
+					</div>
+				</div>
+			</div>
+			
+			<!-- ================= TELEFONE + EMAIL ================= -->
             <div class="row">
+
                 <div class="form-group col-sm-4">
                     <label for="telefone">Telefone</label>
+
                     <input id="telefone"
                            class="form-control"
                            th:field="*{telefone}"
-                           th:classappend="${#fields.hasErrors('telefone')} ? 'is-invalid'"/>
+                           th:classappend="${#fields.hasErrors('telefone')} ? 'is-invalid'" />
 
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('telefone')}"
@@ -92,10 +132,11 @@
 
                 <div class="form-group col-sm-8">
                     <label for="email">E-mail</label>
+
                     <input id="email"
                            class="form-control"
                            th:field="*{email}"
-                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"/>
+                           th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'" />
 
                     <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('email')}"
@@ -104,105 +145,63 @@
                 </div>
             </div>
 
-            <!-- ENDEREÇO -->
-            <div class="row">
-                <div class="form-group col-sm-4">
-                    <label>Logradouro</label>
-                    <input class="form-control"
-                           th:field="*{endereco.logradouro}"
-                           th:classappend="${#fields.hasErrors('endereco.logradouro')} ? 'is-invalid'"/>
+			<!-- REGIÃO / ESTADO / IBGE -->
+			<div class="row">
+				<div class="form-group col-sm-4">
+					<label>Região</label> <select class="form-control" id="regiao">
+						<option value="">Selecione</option>
+						<option th:each="r : ${regioes}" th:value="${r.id}"
+							th:text="${r.nomeRegiao}"
+							th:selected="${cliente.endereco?.cidade?.estado?.regiao?.id == r.id}">
+						</option>
+					</select>
 
-                    <div class="invalid-feedback"
-                         th:errors="*{endereco.logradouro}">
-                    </div>
-                </div>
+				</div>
 
-                <div class="form-group col-sm-4">
-                    <label>Número</label>
-                    <input class="form-control"
-                           th:field="*{endereco.numero}"
-                           th:classappend="${#fields.hasErrors('endereco.numero')} ? 'is-invalid'"/>
+				<div class="form-group col-sm-4">
+					<label>Estado</label> <select class="form-control" id="estado">
+						<option value="">Selecione</option>
+						<option th:each="e : ${estados}" th:value="${e.id}"
+							th:text="${e.nome}"
+							th:selected="${cliente.endereco?.cidade?.estado?.id == e.id}">
+						</option>
+					</select>
 
-                    <div class="invalid-feedback"
-                         th:errors="*{endereco.numero}">
-                    </div>
-                </div>
+				</div>
 
-                <div class="form-group col-sm-4">
-                    <label>Complemento</label>
-                    <input class="form-control"
-                           th:field="*{endereco.complemento}"
-                           th:classappend="${#fields.hasErrors('endereco.complemento')} ? 'is-invalid'"/>
+				<div class="form-group col-sm-4">
+					<label>IBGE</label> <input type="text" class="form-control"
+						readonly />
+				</div>
+			</div>
 
-                    <div class="invalid-feedback"
-                         th:errors="*{endereco.complemento}">
-                    </div>
-                </div>
-            </div>
+			<!-- CIDADE + CEP -->
+			<div class="row">
+				<div class="form-group col-sm-4">
+					<label>Cidade</label> <select class="form-control" id="cidade"
+						th:field="*{endereco.cidade}">
+						<option value="">Selecione</option>
+						<option th:each="c : ${cidades}" th:value="${c.id}"
+							th:text="${c.nomeCidade}"></option>
+					</select>
 
-            <!-- REGIÃO / ESTADO / IBGE -->
-            <div class="row">
-                <div class="form-group col-sm-4">
-                    <label>Região</label>
-                    <select class="form-control" id="regiao">
-                        <option value="">Selecione</option>
-                        <option th:each="r : ${regioes}"
-                                th:value="${r.id}"
-                                th:text="${r.nomeRegiao}">
-                        </option>
-                    </select>
-                </div>
+				</div>
 
-                <div class="form-group col-sm-4">
-                    <label>Estado</label>
-                    <select class="form-control" id="estado">
-                        <option value="">Selecione</option>
-                        <option th:each="e : ${estados}"
-                                th:value="${e.id}"
-                                th:text="${e.nome}">
-                        </option>
-                    </select>
-                </div>
+				<div class="form-group col-sm-4">
+					<label>CEP</label> <input type="text" class="form-control"
+						th:field="*{endereco.cep}"
+						th:classappend="${#fields.hasErrors('endereco.cep')} ? 'is-invalid'" />
 
-                <div class="form-group col-sm-4">
-                    <label>IBGE</label>
-                    <input type="text" class="form-control" readonly/>
-                </div>
-            </div>
+					<div class="invalid-feedback" th:errors="*{endereco.cep}"></div>
+				</div>
+			</div>
 
-            <!-- CIDADE + CEP -->
-            <div class="row">
-                <div class="form-group col-sm-4">
-                    <label>Cidade</label>
-                    <select class="form-control" id="cidade"
-                            th:field="*{endereco.cidade}">
-                        <option value="">Selecione</option>
-                        <option th:each="c : ${cidades}"
-                                th:value="${c.id}"
-                                th:text="${c.nomeCidade}">
-                        </option>
-                    </select>
-                </div>
+			<br>
 
-                <div class="form-group col-sm-4">
-                    <label>CEP</label>
-                    <input type="text"
-                           class="form-control"
-                           th:field="*{endereco.cep}"
-                           th:classappend="${#fields.hasErrors('endereco.cep')} ? 'is-invalid'"/>
+			<button type="submit" class="btn btn-primary">Salvar</button>
 
-                    <div class="invalid-feedback"
-                         th:errors="*{endereco.cep}">
-                    </div>
-                </div>
-            </div>
-
-            <br>
-
-            <button type="submit" class="btn btn-primary">Salvar</button>
-
-        </form>
-    </div>
+		</form>
+	</div>
 
 </section>
 </html>

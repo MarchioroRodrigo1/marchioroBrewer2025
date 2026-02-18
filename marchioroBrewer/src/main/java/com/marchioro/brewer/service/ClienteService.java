@@ -1,7 +1,7 @@
 package com.marchioro.brewer.service;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,8 +44,8 @@ public class ClienteService {
         clienteRepository.save(cliente);
     }
     
-    public List<Cliente> listarAtivos() {
-        return clienteRepository.findByAtivoTrue();
+    public Page<Cliente> listar(Pageable pageable) {
+        return clienteRepository.findByAtivoTrue(pageable);
     }
 
     public Cliente buscarPorId(Long id) {

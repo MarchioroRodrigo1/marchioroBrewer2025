@@ -3,9 +3,10 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	xmlns:th="http://www.thymeleaf.org"
 	layout:decorate="'layout/LayoutPadrao'">
-	
+
 <head>
-<link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/bootstrap-switch.min.css}"/>
+<link rel="stylesheet" type="text/css"
+	th:href="@{/layout/stylesheets/bootstrap-switch.min.css}" />
 </head>
 <section layout:fragment="conteudo">
 
@@ -15,70 +16,131 @@
 		</div>
 	</div>
 	<div class="container-fluid">
-		<form>
+
+		<div th:if="${mensagem}" class="alert alert-success alerta-auto">
+			<span th:text="${mensagem}"></span>
+		</div>
+
+
+		<form th:action="@{/usuario/novo}" th:object="${usuario}"
+			onsubmit="return validarSenha()" method="post">
+			
+					<div th:if="${#fields.hasErrors('*')}"
+			class="alert alert-danger alerta-auto">Existem erros no
+			formulário</div>
+
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+				
+				<!-- =====================================================
+                  ID OCULTO (OBRIGATÓRIO PARA UPDATE)
+                 Sem isso o Hibernate faz INSERT
+            ====================================================== -->
+            <input type="hidden" th:field="*{id}" />
+
 			<div class="row">
 				<div class="form-group  col-sm-12">
 					<label for="nome">Nome</label> <input type="text"
-						class="form-control" id="nome" autofocus="autofocus" />
+						class="form-control" autofocus="autofocus"
+						th:field="*{nomeUsuario}"
+						th:classappend="${#fields.hasErrors('nomeUsuario')} ? 'is-invalid'" />
+
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('nomeUsuario')}"
+						th:errors="*{nomeUsuario}"></div>
 				</div>
 			</div>
 
 			<div class="row">
 				<div class="form-group  col-sm-6">
-					<label for="email">E-mail</label> <input type="text"
-						class="form-control" id="email" />
+					<label for="email">E-mail</label> <input type="email"
+						class="form-control" id="email" th:field="*{emailUsuario}"
+						th:classappend="${#fields.hasErrors('emailUsuario')} ? 'is-invalid'" />
+
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('emailUsuario')}"
+						th:errors="*{emailUsuario}"></div>
 				</div>
 
 				<div class="form-group  col-sm-2">
 					<label for="nascimento">Data de Nascimento</label> <input
-						type="text" class="form-control" id="nascimento" />
+						type="date" class="form-control" id="nascimento"
+						th:field="*{dataNascimento}"
+						th:classappend="${#fields.hasErrors('dataNascimento')} ? 'is-invalid'" />
+
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('dataNascimento')}"
+						th:errors="*{dataNascimento}"></div>
 				</div>
 			</div>
 			<div class="row">
 				<div class="form-group  col-sm-3">
-					<label for="senha">Senha</label> 
-					<input type="password" class="form-control" id="senha"/>
+					<label for="senha">Senha</label> <input type="password"
+						class="form-control" id="senha" th:field="*{senhaUsuario}"
+						th:classappend="${#fields.hasErrors('senhaUsuario')} ? 'is-invalid'" />
+						<!-- Barra -->
+					<div class="progress mt-2">
+						<div id="forcaSenha" class="progress-bar" role="progressbar"
+							style="width: 0%"></div>
+					</div>
+
+					<small id="textoForca" class="form-text"></small>
+					<div class="text-danger"
+						th:if="${#fields.hasErrors('senhaUsuario')}"
+						th:errors="*{senhaUsuario}"></div>
+
+					
 				</div>
-				
+
 				<div class="form-group  col-sm-3">
-					<label for="confirmacaoSenha">Confirmação de senha</label> 
-					<input type="password" class="form-control" id="confirmacaoSenha"/>
+					<label for="confirmacaoSenha">Confirmação de senha</label> <input
+						type="password" class="form-control" id="confirmacaoSenha"
+						th:field="*{confirmacaoSenha}"
+						th:classappend="${#fields.hasErrors('confirmacaoSenha')} ? 'is-invalid'" />
+					<div class="text-danger"
+						th:if="${#fields.hasErrors('confirmacaoSenha')}"
+						th:errors="*{confirmacaoSenha}"></div>
+					<small id="erroSenha" class="text-danger"></small>
 				</div>
-				
+
 				<div class="form-group  col-sm-3">
 					<label class="control-label">Status</label>
-					<div >
-						<input type="checkbox" class="js-status" data-size="smail" data-off-color="danger"
-						data-on-text="Ativo" data-off-text="Inativo"/>
-					</div>
-				</div>
-				
-			</div>
-			
-	<div class="row">
-				<div class="form-group  col-sm-6">
-					<label class="control-label">Grupos</label> 
 					<div>
-  						<div class="checkbox  checkbox-inline"> 
-	    					<input type="checkbox" />
-	    					<label>Administrador</label>
-    					</div>
-    					<div class="checkbox  checkbox-inline"> 
-	    					<input type="checkbox" />
-	    					<label>Vendedor</label>
-    					</div>
+						<input type="checkbox" class="js-status" data-size="smail"
+							data-off-color="danger" data-on-text="Ativo"
+							data-off-text="Inativo" th:field="*{ativo}" />
+					</div>
+				</div>
+
+			</div>
+
+			<div class="row">
+				<div class="form-group col-sm-6">
+					<label class="control-label">Grupos</label>
+					<!-- =========================
+    					 LISTA DE GRUPOS DINÂMICA
+    					 Spring envia ${grupos}
+     				========================= -->
+					<div th:each="grupo : ${grupos}">
+						<div class="checkbox checkbox-inline">
+
+							<!-- IMPORTANTE: th:field="*{grupos}"
+            					liga automaticamente com Set<Grupo> da entity
+								th:value envia o ID do grupo-->
+
+							<input type="checkbox" th:field="*{grupos}"
+								th:value="${grupo.id}" th:id="'grupo_' + ${grupo.id}" /> <label
+								th:for="'grupo_' + ${grupo.id}" th:text="${grupo.nomeGrupo}">
+							</label>
+
+						</div>
 					</div>
 				</div>
 			</div>
-			
+
 			<button type="submit" class="btn  btn-primary">Salvar</button>
 		</form>
 	</div>
 </section>
-<th:block layout:fragment="javascript-extra">
-<script th:src="@{/layout/javascripts/bootstrap-switch.min.js}"></script>
-<script>
-	$('.js-status').bootstrapSwitch();
-</script>
-</th:block>
+
 </html>

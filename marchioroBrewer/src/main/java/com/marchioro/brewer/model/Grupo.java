@@ -1,11 +1,14 @@
 package com.marchioro.brewer.model;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,28 +22,30 @@ import jakarta.validation.constraints.NotBlank;
 @Table(name = "grupo")
 public class Grupo implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@NotBlank(message = "O nome do grupo é obrigatório")
-	@Column(nullable = false, length = 50, unique = true)
-	private String nomeGrupo;
+    @NotBlank(message = "O nome do grupo é obrigatório")
+    @Column(nullable = false, length = 50, unique = true)
+    private String nomeGrupo;
 
-	@Column(nullable = false)
-	private Boolean ativo = true;
+    @Column(nullable = false)
+    private Boolean ativo = true;
 
-	@ManyToMany
-	@JoinTable(name = "grupo_permissao", // Nome da tabela de ligação no banco
-			joinColumns = @JoinColumn(name = "codigo_grupo"), // FK para Grupo
-			inverseJoinColumns = @JoinColumn(name = "codigo_permissao") // FK para Permissao
-	)
-	private List<Permissao> permissoes; // Alterado de List<Grupo> para List<Permissao>
+    // permissões carregadas junto (necessário p/ segurança)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "grupo_permissao",
+        joinColumns = @JoinColumn(name = "codigo_grupo"),
+        inverseJoinColumns = @JoinColumn(name = "codigo_permissao")
+    )
+    private Set<Permissao> permissoes = new HashSet<>();
 
-	@ManyToMany(mappedBy = "grupos") // Indica que o mapeamento principal está no atributo 'grupos' da classe Usuario
-	private List<Usuario> usuarios;
+    @ManyToMany(mappedBy = "grupos")
+    private Set<Usuario> usuarios = new HashSet<>();
 
 	public Grupo() {
 	}
@@ -71,21 +76,22 @@ public class Grupo implements Serializable {
 		this.ativo = ativo;
 	}
 
-	public List<Permissao> getPermissoes() {
+	public Set<Permissao> getPermissoes() {
 		return permissoes;
 	}
 
-	public void setPermissoes(List<Permissao> permissoes) {
+	public void setPermissoes(Set<Permissao> permissoes) {
 		this.permissoes = permissoes;
 	}
 
-	public List<Usuario> getUsuarios() {
+	public Set<Usuario> getUsuarios() {
 		return usuarios;
 	}
 
-	public void setUsuarios(List<Usuario> usuarios) {
+	public void setUsuarios(Set<Usuario> usuarios) {
 		this.usuarios = usuarios;
 	}
+
 	// Equals e HashCode baseados no ID
 
 	@Override

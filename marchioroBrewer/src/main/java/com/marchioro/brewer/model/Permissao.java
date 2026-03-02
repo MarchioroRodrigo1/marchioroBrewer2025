@@ -1,18 +1,19 @@
 package com.marchioro.brewer.model;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "permissao")
@@ -28,9 +29,9 @@ public class Permissao implements Serializable {
     @Column(nullable = false, length = 50, unique = true)
     private String nomePermissao; 
     
-    @NotNull(message = "A permição é obrigatório")
-    @ManyToMany(mappedBy = "permissoes") // Indica que 'permissoes' é o campo na classe Grupo
-    private List<Grupo> grupos; 
+   // @NotNull(message = "A permição é obrigatório") excluir
+    @ManyToMany(mappedBy = "permissoes", fetch = FetchType.LAZY) // Indica que 'permissoes' é o campo na classe Grupo
+    private Set<Grupo> grupos = new HashSet<>(); 
     
     @Column(nullable = false)
     private Boolean ativo = true;
@@ -53,19 +54,21 @@ public class Permissao implements Serializable {
     	this.nomePermissao = nomePermissao; 
     	}
 
-    public List<Grupo> getGrupos() { 
-    	return grupos; 
-    	}
-    public void setGrupos(List<Grupo> grupos) {
-    	this.grupos = grupos; 
-    	}
+    
 
-    public Boolean isAtivo() {
-    	return Boolean.TRUE.equals(ativo);
-    	}
-    public void setAtivo(Boolean ativo) { 
-    	this.ativo = ativo; 
-    	}
+    public Set<Grupo> getGrupos() {
+		return grupos;
+	}
+	public void setGrupos(Set<Grupo> grupos) {
+		this.grupos = grupos;
+	}
+	 public Boolean getAtivo() {
+	        return ativo;
+	    }
+
+	    public void setAtivo(Boolean ativo) {
+	        this.ativo = ativo;
+	    }
     
     // hashCode e equals baseados no ID
     

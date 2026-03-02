@@ -1,39 +1,38 @@
 package com.marchioro.brewer.controller;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.marchioro.brewer.model.OnCreate;
-import com.marchioro.brewer.model.OnUpdate;
 import com.marchioro.brewer.model.Usuario;
 import com.marchioro.brewer.repository.GrupoRepository;
 import com.marchioro.brewer.repository.UsuarioRepository;
 import com.marchioro.brewer.service.UsuarioService;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/usuario")
 public class UsuarioController {
-	
-	@Autowired
-	private jakarta.validation.Validator validator;
-	
-	@Autowired
-	private UsuarioService usuarioService;
+
+    @Autowired
+    private jakarta.validation.Validator validator;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -47,6 +46,7 @@ public class UsuarioController {
     // =====================================================
     // ABRIR FORM NOVO USUÁRIO
     // =====================================================
+    @PreAuthorize("hasAuthority('ROLE_CADASTRAR_USUARIO')")
     @GetMapping("/novo")
     public ModelAndView novo(Usuario usuario) {
 
@@ -57,135 +57,135 @@ public class UsuarioController {
 
         return mv;
     }
- // =====================================================
- // SALVAR / EDITAR USUÁRIO
- // =====================================================
- @PostMapping("/novo")
- public ModelAndView salvar(
-         Usuario usuario,
-         BindingResult result,
-         RedirectAttributes attributes) {
 
-     // =====================================================
-     // >>> AJUSTE 1
-     // Validação por grupo (CREATE / UPDATE)
-     // IGNORA senha vazia na edição
-     // =====================================================
-     Set<ConstraintViolation<Usuario>> violations;
+    // =====================================================
+    // SALVAR / EDITAR USUÁRIO
+    // =====================================================
+    @PostMapping("/novo")
+    public ModelAndView salvar(
+            Usuario usuario,
+            BindingResult result,
+            RedirectAttributes attributes) {
 
-     if (usuario.getId() == null) {
-         // CREATE → valida tudo
-         violations = validator.validate(usuario, OnCreate.class);
-     } else {
-         // UPDATE → valida default
-         violations = validator.validate(usuario);
-     }
+        // =====================================================
+        // 1️⃣ VALIDAÇÃO POR GRUPO (CREATE / UPDATE)
+        // =====================================================
+        Set<ConstraintViolation<Usuario>> violations;
 
-     for (ConstraintViolation<Usuario> v : violations) {
+        if (usuario.getId() == null) {
+            // CREATE → valida grupo OnCreate
+            violations = validator.validate(usuario, OnCreate.class);
+        } else {
+            // UPDATE → valida padrão
+            violations = validator.validate(usuario);
+        }
 
-         // >>> AJUSTE 2
-         // evita erro de senha quando estiver vazia na edição
-         if ("senhaUsuario".equals(v.getPropertyPath().toString())
-                 && usuario.getId() != null
-                 && (usuario.getSenhaUsuario() == null
-                 || usuario.getSenhaUsuario().isBlank())) {
-             continue;
-         }
+        for (ConstraintViolation<Usuario> v : violations) {
 
-         result.rejectValue(
-                 v.getPropertyPath().toString(),
-                 "",
-                 v.getMessage());
-     }
+            // ignora senha vazia durante edição
+            if ("senhaUsuario".equals(v.getPropertyPath().toString())
+                    && usuario.getId() != null
+                    && (usuario.getSenhaUsuario() == null
+                    || usuario.getSenhaUsuario().isBlank())) {
+                continue;
+            }
 
-     // =====================================================
-     // VALIDAR EMAIL DUPLICADO
-     // =====================================================
-     Usuario usuarioExistente =
-             usuarios.findByEmailUsuario(usuario.getEmailUsuario());
+            result.rejectValue(
+                    v.getPropertyPath().toString(),
+                    "",
+                    v.getMessage());
+        }
 
-     if (usuarioExistente != null &&
-         (usuario.getId() == null ||
-          !usuarioExistente.getId().equals(usuario.getId()))) {
+        // =====================================================
+        // 2️⃣ VALIDAR EMAIL DUPLICADO (CORRIGIDO)
+        // =====================================================
+        Optional<Usuario> usuarioExistente =
+                usuarios.findByEmailUsuario(usuario.getEmailUsuario());
 
-         result.rejectValue(
-                 "emailUsuario",
-                 "erro.email",
-                 "Já existe usuário cadastrado com este e-mail");
-     }
+        if (usuarioExistente.isPresent()) {
 
-     // =====================================================
-     // >>> AJUSTE 3
-     // confirmação senha somente se digitada
-     // =====================================================
-     if (usuario.getSenhaUsuario() != null &&
-         !usuario.getSenhaUsuario().isBlank()) {
+            Usuario existente = usuarioExistente.get();
 
-         if (!usuario.getSenhaUsuario()
-                 .equals(usuario.getConfirmacaoSenha())) {
+            // permite salvar se for o mesmo usuário (edição)
+            if (usuario.getId() == null ||
+                !existente.getId().equals(usuario.getId())) {
 
-             result.rejectValue(
-                     "confirmacaoSenha",
-                     "erro.confirmacao",
-                     "As senhas não conferem");
-         }
-     }
+                result.rejectValue(
+                        "emailUsuario",
+                        "erro.email",
+                        "Já existe usuário cadastrado com este e-mail");
+            }
+        }
 
-     // =====================================================
-     // SE EXISTIR ERRO → VOLTA FORM
-     // =====================================================
-     if (result.hasErrors()) {
+        // =====================================================
+        // 3️⃣ CONFIRMAÇÃO DE SENHA (somente se digitada)
+        // =====================================================
+        if (usuario.getSenhaUsuario() != null &&
+            !usuario.getSenhaUsuario().isBlank()) {
 
-         ModelAndView mv =
-                 new ModelAndView("usuario/CadastroUsuario");
+            if (!usuario.getSenhaUsuario()
+                    .equals(usuario.getConfirmacaoSenha())) {
 
-         mv.addObject("grupos", grupos.findAll());
-         return mv;
-     }
+                result.rejectValue(
+                        "confirmacaoSenha",
+                        "erro.confirmacao",
+                        "As senhas não conferem");
+            }
+        }
 
-     // =====================================================
-     // >>> AJUSTE 4 (MAIS IMPORTANTE)
-     // TRATAMENTO CORRETO DA SENHA
-     // =====================================================
+        // =====================================================
+        // SE EXISTIR ERRO → VOLTA FORM
+        // =====================================================
+        if (result.hasErrors()) {
 
-     if (usuario.getId() != null) {
+            ModelAndView mv =
+                    new ModelAndView("usuario/CadastroUsuario");
 
-         // ===== EDIÇÃO =====
-         Usuario usuarioBanco =
-                 usuarios.findById(usuario.getId()).orElseThrow();
+            mv.addObject("grupos", grupos.findAll());
+            return mv;
+        }
 
-         if (usuario.getSenhaUsuario() == null ||
-             usuario.getSenhaUsuario().isBlank()) {
+        // =====================================================
+        // 4️⃣ TRATAMENTO CORRETO DA SENHA
+        // =====================================================
+        if (usuario.getId() != null) {
 
-             // mantém senha antiga
-             usuario.setSenhaUsuario(
-                     usuarioBanco.getSenhaUsuario());
+            // ===== EDIÇÃO =====
+            Usuario usuarioBanco =
+                    usuarios.findById(usuario.getId()).orElseThrow();
 
-         } else {
+            if (usuario.getSenhaUsuario() == null ||
+                usuario.getSenhaUsuario().isBlank()) {
 
-             // nova senha → criptografa
-             usuario.setSenhaUsuario(
-                     passwordEncoder.encode(usuario.getSenhaUsuario()));
-         }
+                // mantém senha antiga
+                usuario.setSenhaUsuario(
+                        usuarioBanco.getSenhaUsuario());
 
-     } else {
+            } else {
 
-         // ===== CRIAÇÃO =====
-         usuario.setSenhaUsuario(
-                 passwordEncoder.encode(usuario.getSenhaUsuario()));
-     }
+                // criptografa nova senha
+                usuario.setSenhaUsuario(
+                        passwordEncoder.encode(usuario.getSenhaUsuario()));
+            }
 
-     // =====================================================
-     // SALVAR
-     // =====================================================
-     usuarios.save(usuario);
+        } else {
 
-     attributes.addFlashAttribute(
-             "mensagem",
-             "Usuário salvo com sucesso!");
+            // ===== CRIAÇÃO =====
+            usuario.setSenhaUsuario(
+                    passwordEncoder.encode(usuario.getSenhaUsuario()));
+        }
 
-     return new ModelAndView("redirect:/usuario");
- }
+        // =====================================================
+        // SALVAR
+        // =====================================================
+        usuarios.save(usuario);
+
+        attributes.addFlashAttribute(
+                "mensagem",
+                "Usuário salvo com sucesso!");
+
+        return new ModelAndView("redirect:/usuario");
+    }
 
     // =====================================================
     // LISTAGEM + FILTRO
@@ -201,8 +201,7 @@ public class UsuarioController {
 
             mv.addObject(
                     "usuarios",
-                    usuarios
-                        .findByNomeUsuarioContainingIgnoreCaseAndAtivoTrue(nomeUsuario));
+                    usuarios.findByNomeUsuarioContainingIgnoreCaseAndAtivoTrue(nomeUsuario));
 
         } else {
 
@@ -258,7 +257,10 @@ public class UsuarioController {
 
         return "redirect:/usuario";
     }
-    
+
+    // =====================================================
+    // LISTAGEM PAGINADA (SERVICE)
+    // =====================================================
     @GetMapping("/usuario")
     public String listarUsuarios(
             @RequestParam(required = false) String nomeUsuario,
@@ -267,11 +269,10 @@ public class UsuarioController {
 
         Page<Usuario> page = usuarioService.listar(nomeUsuario, pageable);
 
-        model.addAttribute("page", page);              // ✅ IMPORTANTE
+        model.addAttribute("page", page);
         model.addAttribute("usuarios", page.getContent());
         model.addAttribute("nomeUsuario", nomeUsuario);
 
         return "usuario/listagemUsuario";
     }
-    
 }

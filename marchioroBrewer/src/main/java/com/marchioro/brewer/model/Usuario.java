@@ -2,11 +2,15 @@ package com.marchioro.brewer.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +34,7 @@ import jakarta.validation.constraints.Size;
 @GroupSequence({Usuario.class, OnCreate.class, OnUpdate.class})
 @Entity
 @Table(name = "usuario")
-public class Usuario implements Serializable {
+public class Usuario implements Serializable, UserDetails {
 
     private static final long serialVersionUID = 1L;
 
@@ -165,7 +169,48 @@ public class Usuario implements Serializable {
 			Usuario other = (Usuario) obj;
 			return Objects.equals(id, other.id);
 		}
-	    
+
+		@Override
+		public Collection<? extends GrantedAuthority> getAuthorities() {
+
+		    Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+
+		    for (Grupo grupo : this.grupos) {
+		        for (Permissao permissao : grupo.getPermissoes()) {
+		            authorities.add(
+		                new SimpleGrantedAuthority(
+		                    permissao.getNomePermissao()
+		                )
+		            );
+		        }
+		    }
+
+		    return authorities;
+		}
+
+		@Override
+		public String getUsername() {
+		    return this.emailUsuario;
+		}
+
+		@Override
+		public String getPassword() {
+		    return this.senhaUsuario;
+		}
+
+		@Override
+		public boolean isAccountNonExpired() { return true; }
+
+		@Override
+		public boolean isAccountNonLocked() { return true; }
+
+		@Override
+		public boolean isCredentialsNonExpired() { return true; }
+
+		@Override
+		public boolean isEnabled() {
+		    return this.ativo;
+		}
 	    
 
 }

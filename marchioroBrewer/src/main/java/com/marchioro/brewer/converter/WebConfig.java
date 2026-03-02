@@ -8,13 +8,17 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebConfig implements WebMvcConfigurer {
 
     private final StringToBigDecimalConverter bigDecimalConverter;
+    private final PermissaoConverter permissaoConverter; 
 
-    public WebConfig(StringToBigDecimalConverter bigDecimalConverter) {
+    public WebConfig(StringToBigDecimalConverter bigDecimalConverter,
+                     PermissaoConverter permissaoConverter) {
         this.bigDecimalConverter = bigDecimalConverter;
+        this.permissaoConverter = permissaoConverter;
     }
 
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(bigDecimalConverter);
+        registry.addConverter(permissaoConverter);
     }
 }

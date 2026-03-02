@@ -1,6 +1,7 @@
 package com.marchioro.brewer.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,7 @@ import com.marchioro.brewer.model.Usuario;
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 	
 	boolean existsByEmailUsuario(String emailUsuario);
-	Usuario findByEmailUsuario(String emailUsuario);
+	Optional<Usuario> findByEmailUsuario(String emailUsuario);
 	List<Usuario> findByAtivoTrue();
 	List<Usuario> findByNomeUsuarioContainingIgnoreCaseAndAtivoTrue(String nomeUsuario);
 

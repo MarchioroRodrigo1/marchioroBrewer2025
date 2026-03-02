@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="'layout/LayoutPadrao'">
+
+<section layout:fragment="conteudo">
+
+<div class="container-fluid">
+    <h1>Lista de Permissões</h1>
+
+    <a th:href="@{/permissao/novo}" class="btn btn-primary mb-3">
+        Nova Permissão
+    </a>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Ativo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${permissao}">
+                <td th:text="${p.id}"></td>
+                <td th:text="${p.nomePermissao}"></td>
+                <td th:text="${p.ativo ? 'Sim' : 'Não'}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</section>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="'layout/LayoutPadrao'">
+
+<head>
+<link rel="stylesheet" type="text/css"
+	th:href="@{/layout/stylesheets/bootstrap-switch.min.css}" />
+</head>
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<h1>Cadastro de Grupos</h1>
+		</div>
+	</div>
+	<div class="container-fluid">
+
+		<div th:if="${mensagem}" class="alert alert-success alerta-auto">
+			<span th:text="${mensagem}"></span>
+		</div>
+	</div>
+
+<form th:action="@{/grupo/novo}" th:object="${grupo}" method="post">
+	
+					<div th:if="${#fields.hasErrors('*')}"
+			class="alert alert-danger alerta-auto">Existem erros no
+			formulário</div>
+
+			<input type="hidden" th:name="${_csrf.parameterName}"
+				th:value="${_csrf.token}" />
+				
+				<!-- =====================================================
+                  ID OCULTO (OBRIGATÓRIO PARA UPDATE)
+                 Sem isso o Hibernate faz INSERT
+            ====================================================== -->
+            <input type="hidden" th:field="*{id}" />
+
+    
+    <div class="row">
+				<div class="form-group  col-sm-12">
+					<label for="grupo">Nome do Grupo</label> <input type="text"
+						class="form-control" autofocus="autofocus"
+						th:field="*{nomeGrupo}"
+						th:classappend="${#fields.hasErrors('nomeGrupo')} ? 'is-invalid'" />
+
+					<div class="invalid-feedback"
+						th:if="${#fields.hasErrors('nomeGrupo')}"
+						th:errors="*{nomeGrupo}"></div>
+				</div>
+			</div>
+    
+
+    <h3>Permissões</h3>
+
+    <div th:each="permissao : ${permissoes}">
+        <label>
+            <input type="checkbox"
+                   th:field="*{permissoes}"
+                   th:value="${permissao.id}" />
+
+            <span th:text="${permissao.nomePermissao}"></span>
+        </label>
+    </div>
+
+    <br>
+
+    <button type="submit" class="btn  btn-primary">Salvar</button>
+
+</form>
+	
+</section>
+</html>

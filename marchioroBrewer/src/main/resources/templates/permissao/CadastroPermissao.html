@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="'layout/LayoutPadrao'">
+
+<head>
+<link rel="stylesheet" type="text/css"
+	th:href="@{/layout/stylesheets/bootstrap-switch.min.css}" />
+</head>
+<section layout:fragment="conteudo">
+	<div class="page-header">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-sm-10">
+					<h1>Cadastro de Permissão</h1>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="container-fluid">
+		<!-- Alertas -->
+		<div th:if="${mensagem}"
+			class="alert alert-success alert-dismissible fade show" role="alert">
+			<span th:text="${mensagem}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert"
+				aria-label="Close"></button>
+		</div>
+
+		<div class="card shadow-sm">
+			<div class="card-body">
+			
+			<div th:if="${erro}" 
+     class="alert alert-danger alert-dismissible fade show">
+    <span th:text="${erro}"></span>
+</div>
+				<form th:action="@{/permissao}" th:object="${permissao}"
+					method="post">
+
+					<div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+						<i class="fa fa-exclamation-circle"></i> Verifique os campos
+						abaixo.
+					</div>
+
+					<input type="hidden" th:field="*{id}" />
+
+					<div class="row">
+						<!-- Campo Nome -->
+						<div class="col-sm-6 form-group">
+							<label for="nomePermissao" class="control-label">Nome da
+								Permissão</label> <input type="text" class="form-control"
+								id="nomePermissao" th:field="*{nomePermissao}"
+								th:classappend="${#fields.hasErrors('nomePermissao')} ? 'is-invalid'"
+								placeholder="Ex: ROLE_CADASTRAR_USUARIO" />
+							<div class="invalid-feedback" th:errors="*{nomePermissao}"></div>
+						</div>
+
+						<!-- Campo Ativo (Alinhado com o Input) -->
+						<div class="col-sm-3 form-group">
+							<label class="control-label d-block">&nbsp;</label>
+							<!-- Label invisível para alinhar -->
+							<div class="form-check mt-2">
+								<input type="checkbox" class="form-check-input" id="ativo"
+									th:field="*{ativo}" /> <label class="form-check-label"
+									for="ativo">Ativo</label>
+							</div>
+						</div>
+					</div>
+
+					<!-- Botões de Ação -->
+					<div class="form-group mt-4">
+						<button class="btn btn-primary" type="submit">Salvar</button>
+						<a th:href="@{/permissao/novo}" class="btn btn-light border">Cancelar</a>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+</section>
+
+</html>
+
+
+
+

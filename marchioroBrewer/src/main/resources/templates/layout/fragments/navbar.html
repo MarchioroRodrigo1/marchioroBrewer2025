@@ -25,6 +25,46 @@
         <div class="collapse navbar-collapse" id="navbarContent">
 
             <ul class="navbar-nav ms-auto">
+            
+            <!-- Usuário logado -->
+            
+            <li class="nav-item dropdown d-flex align-items-center ms-3">
+            <a class="nav-link dropdown-toggle text-white d-flex align-items-center"
+       href="#"
+       role="button"
+       data-bs-toggle="dropdown">
+
+        <!-- Avatar -->
+        <img th:src="@{/images/avatar-default.png}"
+             class="rounded-circle me-2"
+             style="width:32px;height:32px;object-fit:cover;">
+
+        <!-- Nome do usuário -->
+       <span class="text-white fw-semibold"
+          sec:authentication="name">
+    </span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end">
+
+        <li>
+            <a class="dropdown-item" href="#">
+                <i class="fa fa-user me-2"></i> Meu Perfil
+            </a>
+        </li>
+
+        <li><hr class="dropdown-divider"></li>
+
+        <li>
+            <form th:action="@{/logout}" method="post">
+                <button class="dropdown-item">
+                    <i class="fa fa-sign-out me-2"></i> Sair
+                </button>
+            </form>
+        </li>
+
+    </ul>
+            
+            </li>
 
                 <!-- Switch de tema -->
                 <li class="nav-item d-flex align-items-center ms-3">

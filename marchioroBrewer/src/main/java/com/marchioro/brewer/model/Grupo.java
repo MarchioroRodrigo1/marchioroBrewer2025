@@ -2,7 +2,6 @@ package com.marchioro.brewer.model;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -68,8 +67,8 @@ public class Grupo implements Serializable {
 		this.nomeGrupo = nomeGrupo;
 	}
 
-	public Boolean isAtivo() {
-		return Boolean.TRUE.equals(ativo);
+	public Boolean getAtivo() {
+	    return ativo;
 	}
 
 	public void setAtivo(Boolean ativo) {
@@ -90,6 +89,14 @@ public class Grupo implements Serializable {
 
 	public void setUsuarios(Set<Usuario> usuarios) {
 		this.usuarios = usuarios;
+	}
+	
+	public void adicionarPermissao(Permissao permissao) {
+	    this.permissoes.add(permissao);
+	}
+
+	public void removerPermissao(Permissao permissao) {
+	    this.permissoes.remove(permissao);
 	}
 
 	// Equals e HashCode baseados no ID

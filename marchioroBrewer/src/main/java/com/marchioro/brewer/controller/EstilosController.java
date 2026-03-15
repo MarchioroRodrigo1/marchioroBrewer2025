@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.marchioro.brewer.model.Estilo;
 import com.marchioro.brewer.repository.EstiloRepository;
@@ -42,7 +43,7 @@ public class EstilosController {
 
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> excluir(@PathVariable Long id) {
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
 
         Estilo estilo = estiloRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Estilo não encontrado"));
@@ -52,4 +53,5 @@ public class EstilosController {
 
         return ResponseEntity.ok().build();
     }
+    
 }

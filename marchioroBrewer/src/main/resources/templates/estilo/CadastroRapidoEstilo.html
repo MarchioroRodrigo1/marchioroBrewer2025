@@ -1,25 +1,53 @@
 <div class="modal fade" id="modalCadastroRapidoEstilo"
-     tabindex="-1" aria-hidden="true" th:fragment="modal">
+     tabindex="-1" aria-hidden="true"
+     th:fragment="modal">
 
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
 
-            <div class="modal-header">
-                <h5 class="modal-title">Cadastro de estilo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+            <form id="formCadastroEstilo">
 
-            <div class="modal-body">
-                <label for="nomeEstilo" class="form-label">Nome</label>
-                <input id="nomeEstilo" type="text" class="form-control">
-                <div class="invalid-feedback"></div>
-            </div>
+                <!-- CSRF TOKEN -->
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}" />
 
-            <div class="modal-footer">
-                <button id="btnSalvarEstilo" type="button" class="btn btn-primary">Salvar</button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastro de estilo</h5>
+                    <button type="button" class="btn-close"
+                            data-bs-dismiss="modal"></button>
+                </div>
 
-            </div>
+                <div class="modal-body">
+
+                    <label for="nomeEstilo" class="form-label">Nome</label>
+
+                    <input id="nomeEstilo"
+                           name="nome"
+                           type="text"
+                           class="form-control">
+
+                    <div class="invalid-feedback"></div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <!-- botão agora envia o form -->
+                    <button id="btnSalvarEstilo" type="button"
+                            class="btn btn-primary">
+                        Salvar
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                </div>
+
+            </form>
 
         </div>
     </div>

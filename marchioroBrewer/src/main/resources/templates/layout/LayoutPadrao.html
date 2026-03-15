@@ -6,6 +6,8 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <title layout:title-pattern="$LAYOUT_TITLE - $CONTENT_TITLE">Sistema</title>
 
     <!-- ================================
@@ -87,6 +89,8 @@
 <!-- modal-excluir-usuario -->
 <script th:src="@{/js/modal-excluir-usuario.js}"></script>
 
+<!-- Mensagem padrão -->
+<script th:src="@{/js/mensagens.js}"></script>
 
 </body>
 </html>

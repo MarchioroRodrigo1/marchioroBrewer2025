@@ -34,6 +34,7 @@
     //  FUNÇÃO PRINCIPAL
     // ======================================================================
     function init() {
+
         debug("init() chamado");
 
         // Seletores principais
@@ -49,6 +50,7 @@
         // FALLBACK — SE O BOTÃO NÃO TIVER ID EXATO
         // ---------------------------------------------------------------
         if (!btnSalvar) {
+
             const alt = Array.from(document.querySelectorAll("button"))
                 .find(b => b.textContent.trim().toLowerCase() === "salvar");
 
@@ -61,19 +63,23 @@
         }
 
         const btn = document.querySelector("#btnSalvarEstilo");
+
         if (!btn) {
             debug("Abortando init: não há botão salvar.");
             return;
         }
 
-        // Remove listeners antigos e adiciona o novo
+        // ---------------------------------------------------------------
+        // REMOVE LISTENERS ANTIGOS (evita duplicação)
+        // ---------------------------------------------------------------
         btn.removeEventListener("click", onClickSalvar);
         btn.addEventListener("click", onClickSalvar);
 
         // ======================================================================
-        //  LIMPAR MODAL AO FECHAR (INCLUÍDO POR VOCÊ PEDIU)
+        //  LIMPAR MODAL AO FECHAR
         // ======================================================================
         if (modalElement) {
+
             modalElement.addEventListener("hidden.bs.modal", () => {
 
                 debug("Modal fechado — limpando campos");
@@ -91,7 +97,9 @@
         //  EVENTO DO BOTÃO SALVAR
         // ======================================================================
         function onClickSalvar(e) {
+
             e.preventDefault();
+
             debug("Clique no salvar");
 
             const nome = inputNome.value.trim();
@@ -100,21 +108,29 @@
             //  VALIDAÇÃO BÁSICA
             // ---------------------------------------------------------------
             if (!nome) {
+
                 inputNome.classList.add("is-invalid");
-                if (feedback) feedback.textContent = "Informe um nome válido.";
+
+                if (feedback)
+                    feedback.textContent = "Informe um nome válido.";
+
                 return;
             }
 
             inputNome.classList.remove("is-invalid");
-            if (feedback) feedback.textContent = "";
+
+            if (feedback)
+                feedback.textContent = "";
 
             const estilo = { nome };
 
             // ---------------------------------------------------------------
-            //  PREPARA SPINNER DE LOADING (ADICIONADO)
+            //  PREPARA SPINNER DE LOADING
             // ---------------------------------------------------------------
             btn.disabled = true;
+
             btn.dataset.originalText = btn.innerHTML;
+
             btn.innerHTML = `
                 <span class="spinner-border spinner-border-sm" role="status"></span>
                 Salvando...
@@ -124,8 +140,13 @@
             //  PREPARA HEADERS (CSRF + JSON)
             // ---------------------------------------------------------------
             const csrf = getCsrf();
-            const headers = { "Content-Type": "application/json" };
-            if (csrf) headers[csrf.header] = csrf.token;
+
+            const headers = {
+                "Content-Type": "application/json"
+            };
+
+            if (csrf)
+                headers[csrf.header] = csrf.token;
 
             debug("POST /estilos/novo", estilo, headers);
 
@@ -133,71 +154,104 @@
             //  FETCH → envia estilo para o backend
             // ==================================================================
             fetch("/estilos/novo", {
+
                 method: "POST",
                 headers,
                 body: JSON.stringify(estilo)
+
             })
-                .then(async response => {
+            .then(async response => {
 
-                    debug("Resposta do servidor:", response.status);
+                debug("Resposta do servidor:", response.status);
 
-                    if (!response.ok) {
+                if (!response.ok) {
 
-                        // Se backend retornar texto (ex: "Estilo já existe")
-                        const msg = await response.text();
+                    // Backend pode retornar mensagem simples
+                    const msg = await response.text();
 
-                        inputNome.classList.add("is-invalid");
-                        if (feedback) feedback.textContent = msg || "Erro ao salvar estilo.";
+                    inputNome.classList.add("is-invalid");
 
-                        inputNome.focus();
-                        return null;
-                    }
+                    if (feedback)
+                        feedback.textContent = msg || "Erro ao salvar estilo.";
 
-                    return response.json();
-                })
-                .then(salvo => {
+                    inputNome.focus();
 
-                    if (!salvo) return;
+                    return null;
+                }
 
-                    debug("Estilo salvo:", salvo);
+                return response.json();
+            })
 
-                    // ==================================================================
-                    //  EFEITO VISUAL AO ADICIONAR (ADICIONADO)
-                    // ==================================================================
-					const option = document.createElement("option");
-					option.value = salvo.id;
-					option.textContent = salvo.nome;
+            .then(salvo => {
 
-					selectEstilo.appendChild(option);
+                if (!salvo) return;
 
-					// seleciona corretamente
-					selectEstilo.value = salvo.id;
+                debug("Estilo salvo:", salvo);
 
-					// força o Spring/Thymeleaf a reconhecer
-					selectEstilo.dispatchEvent(new Event("change", { bubbles: true }));
+                // ==============================================================
+                //  ADICIONA O NOVO ESTILO NO SELECT
+                // ==============================================================
+                const option = document.createElement("option");
 
-                    // remove classe após animação
-                    setTimeout(() => option.classList.remove("option-flash"), 1200);
+                option.value = salvo.id;
+                option.textContent = salvo.nome;
 
-                    // ==================================================================
-                    //  FECHA MODAL COM BOOTSTRAP
-                    // ==================================================================
-					const modalInstance = bootstrap.Modal.getOrCreateInstance(modalElement);
-					modalInstance.hide();
+                selectEstilo.appendChild(option);
 
-					//  GARANTIA TOTAL: remove backdrop e estado travado
-					setTimeout(() => {
-					    document.body.classList.remove("modal-open");
+                // seleciona automaticamente
+                selectEstilo.value = salvo.id;
 
-					    document.querySelectorAll(".modal-backdrop").forEach(b => b.remove());
-					}, 300);
+                // dispara evento change (importante para frameworks)
+                selectEstilo.dispatchEvent(new Event("change", { bubbles: true }));
 
-                    // ==================================================================
-                    //  RESTAURA BOTÃO (ADICIONADO)
-                    // ==================================================================
-                    btn.disabled = false;
-                    btn.innerHTML = btn.dataset.originalText;
-                });
+                // ==============================================================
+                //  FECHA MODAL
+                // ==============================================================
+                const modalInstance =
+                    bootstrap.Modal.getOrCreateInstance(modalElement);
+
+                modalInstance.hide();
+
+                // ==============================================================
+                //  GARANTIA EXTRA
+                // remove backdrop preso do Bootstrap
+                // ==============================================================
+                setTimeout(() => {
+
+                    document.body.classList.remove("modal-open");
+
+                    document
+                        .querySelectorAll(".modal-backdrop")
+                        .forEach(b => b.remove());
+
+                }, 300);
+
+            })
+
+            // ==============================================================
+            // NOVO BLOCO → TRATA ERRO DE REDE OU SERVIDOR
+            // ==============================================================
+            .catch(err => {
+
+                debug("Erro na requisição:", err);
+
+                inputNome.classList.add("is-invalid");
+
+                if (feedback)
+                    feedback.textContent = "Erro de comunicação com servidor.";
+
+            })
+
+            // ==============================================================
+            // NOVO BLOCO → SEMPRE RESTAURA O BOTÃO
+            // ==============================================================
+            .finally(() => {
+
+                btn.disabled = false;
+
+                btn.innerHTML = btn.dataset.originalText;
+
+            });
         }
     }
 
@@ -205,10 +259,15 @@
     //  INICIALIZADOR
     // ======================================================================
     if (document.readyState === "loading") {
+
         debug("Aguardando DOM...");
+
         document.addEventListener("DOMContentLoaded", init);
+
     } else {
+
         debug("DOM pronto — iniciando");
+
         init();
     }
 

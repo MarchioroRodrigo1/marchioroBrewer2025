@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="'layout/LayoutPadrao'">
+
+<section layout:fragment="conteudo">
+
+	<div class="container-fluid">
+
+		<h2>Meu Perfil</h2>
+
+		<div class="card p-4">
+
+			<div class="text-center">
+				<img th:src="${usuario.urlAvatar ?: '/images/avatar-default.png'}"
+					class="rounded-circle mb-3"
+					style="width: 120px; height: 120px; object-fit: cover;">
+			</div>
+
+			<p>
+				<strong>Nome:</strong> <span th:text="${usuario.nomeUsuario}"></span>
+			</p>
+			<p>
+				<strong>Email:</strong> <span th:text="${usuario.emailUsuario}"></span>
+			</p>
+
+		</div>
+	</div>
+</section>
+</html>
+
+

@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.marchioro.brewer.model.Cliente;
 import com.marchioro.brewer.model.Endereco;
 import com.marchioro.brewer.model.Estado;
+import com.marchioro.brewer.model.Estilo;
 import com.marchioro.brewer.model.Regiao;
 import com.marchioro.brewer.repository.CidadeRepository;
 import com.marchioro.brewer.repository.ClienteRepository;
@@ -206,17 +209,17 @@ public class ClienteController {
  
  
 //SOFT DELETE
- @PostMapping("/excluir/{id}")
- public String excluir(@PathVariable Long id, RedirectAttributes attributes) {
+
+ @DeleteMapping("/{id}")
+ public ResponseEntity<Void> excluir(@PathVariable Long id) {
+
      Cliente cliente = clienteRepository.findById(id)
-             .orElseThrow(() -> new IllegalArgumentException("Cliente inválido"));
+         .orElseThrow(() -> new IllegalArgumentException("Estilo não encontrado"));
 
      cliente.setAtivo(false);
      clienteRepository.save(cliente);
-     
-     attributes.addFlashAttribute("mensagemSucesso", "Cliente excluído com sicesso...!");
 
-     return "redirect:/clientes";
+     return ResponseEntity.ok().build();
  }
 
 }

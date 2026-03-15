@@ -17,6 +17,13 @@
              TÍTULO
         ================================================== -->
         <h1 class="mb-4">Listagem de Cervejas</h1>
+        <!-- =================================================
+			Campo oculto para a mensagem
+        ================================================== -->
+        <input type="hidden"
+       id="mensagemSucesso"
+       th:if="${mensagemSucesso}"
+       th:value="${mensagemSucesso}">
 
         <!-- =================================================
              FILTRO
@@ -86,10 +93,8 @@
 
                         <!-- EXCLUIR (MODAL) -->
                         <button type="button"
-                                class="btn btn-sm btn-outline-danger"
-                                data-bs-toggle="modal"
-                                data-bs-target="#modalExcluir"
-                                th:attr="data-id=${cerveja.id}, data-nome=${cerveja.nome}">
+                                class="btn btn-sm btn-outline-danger btn-excluir"
+                                th:attr="data-id=${cerveja.id}, data-nome=${cerveja.nome}, data-url=@{/cervejas}">
                             <i class="fa fa-trash"></i>
 							<span class="d-none d-md-inline"> Excluir</span>
                             
@@ -145,43 +150,13 @@
     <!-- =========================================================
          MODAL DE EXCLUSÃO
     ========================================================== -->
-    <form id="formExcluir" method="post">
-        <div class="modal fade" id="modalExcluir" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-
-                    <div class="modal-header">
-                        <h5 class="modal-title">Confirmar exclusão</h5>
-                        <button type="button" class="btn-close"
-                                data-bs-dismiss="modal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        Tem certeza que deseja excluir a cerveja
-                        <strong id="nomeCerveja"></strong>?
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button"
-                                class="btn btn-secondary"
-                                data-bs-dismiss="modal">
-                            Cancelar
-                        </button>
-                        <button type="submit" class="btn btn-danger">
-                            Excluir
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </form>
+<div th:replace="modal-excluir :: modalExcluir"></div>
 
     <!-- =========================================================
          SCRIPT (DENTRO DO FRAGMENTO)
     ========================================================== -->
-    <script th:src="@{/js/listar-cervejas.js}"></script>
-    <script th:src="@{/js/cervejas.js}"></script>
+
+    <script th:src="@{/js/delete-entity.js}"></script>
 
 </section>
 

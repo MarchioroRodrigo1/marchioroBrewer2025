@@ -23,3 +23,21 @@ INSERT INTO grupo (id, nome_grupo, ativo) VALUES
 (2, 'Vendedor', 1),
 (3, 'Gerente', 1),
 (4, 'Estoque', 1);
+
+INSERT INTO grupo_permissao (codigo_grupo, codigo_permissao) VALUES
+(1, 1),
+(1, 2),
+(1, 3),
+(1, 4),
+(1, 5),
+(1, 6),
+(1, 7),
+(1, 8),
+(1, 9),
+(1, 10),
+(1, 11),
+(1, 12),
+(1, 13),
+(1, 14),
+(1, 15),
+(1, 16);

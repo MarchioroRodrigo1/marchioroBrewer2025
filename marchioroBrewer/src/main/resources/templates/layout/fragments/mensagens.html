@@ -5,18 +5,16 @@
 <div th:fragment="mensagens">
 
     <!-- Mensagem de sucesso -->
-    <div class="alert alert-success alert-dismissible fade show"
-         th:if="${mensagemSucesso}">
-        <span th:text="${mensagemSucesso}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    <input type="hidden"
+       id="mensagemSucesso"
+       th:if="${mensagemSucesso}"
+       th:value="${mensagemSucesso}">
 
     <!-- Mensagem de erro -->
-    <div class="alert alert-danger alert-dismissible fade show"
-         th:if="${mensagemErro}">
-        <span th:text="${mensagemErro}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
+    <input type="hidden"
+       id="mensagemErro"
+       th:if="${mensagemErro}"
+       th:value="${mensagemErro}">
 
 </div>
 

@@ -5,13 +5,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.marchioro.brewer.dto.CervejaFiltro;
@@ -138,19 +142,27 @@ public String listar(
  // ------------------------------------------------------------
  // Exclusão lógica de cerveja (Soft Delete)
  // ------------------------------------------------------------
-    @PostMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id,
-                          RedirectAttributes attributes) {
+    
+    @DeleteMapping("/{id}")
+    @ResponseBody
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
 
         cervejaService.excluir(id);
 
-        attributes.addFlashAttribute(
-            "mensagem",
-            "Cerveja excluída com sucesso!"
-        );
-
-        return "redirect:/cervejas";
+        return ResponseEntity.ok().build();
     }
+    
+  
+    @GetMapping("/teste-permissoes")
+    @ResponseBody
+    public String testePermissoes(Authentication authentication) {
 
+        StringBuilder sb = new StringBuilder();
 
+        authentication.getAuthorities()
+                .forEach(a -> sb.append(a.getAuthority()).append("<br>"));
+
+        return sb.toString();
+
+    }
 }

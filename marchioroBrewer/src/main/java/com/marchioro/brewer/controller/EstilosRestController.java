@@ -28,9 +28,9 @@ public class EstilosRestController {
         }
 
         estilo.setAtivo(true);
+
         Estilo salvo = estiloRepository.save(estilo);
 
         return ResponseEntity.ok(salvo);
     }
 }
-

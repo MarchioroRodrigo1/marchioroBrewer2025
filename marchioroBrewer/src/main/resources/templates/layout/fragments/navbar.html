@@ -35,9 +35,11 @@
        data-bs-toggle="dropdown">
 
         <!-- Avatar -->
-        <img th:src="@{/images/avatar-default.png}"
-             class="rounded-circle me-2"
-             style="width:32px;height:32px;object-fit:cover;">
+        <img th:src="${#authentication.principal.urlAvatar != null 
+              ? #authentication.principal.urlAvatar 
+              : '/images/avatar-default.png'}"
+     class="rounded-circle me-2"
+     style="width:32px;height:32px;object-fit:cover;">
 
         <!-- Nome do usuário -->
        <span class="text-white fw-semibold"
@@ -47,7 +49,7 @@
     <ul class="dropdown-menu dropdown-menu-end">
 
         <li>
-            <a class="dropdown-item" href="#">
+            <a class="dropdown-item" th:href="@{/perfil}">
                 <i class="fa fa-user me-2"></i> Meu Perfil
             </a>
         </li>

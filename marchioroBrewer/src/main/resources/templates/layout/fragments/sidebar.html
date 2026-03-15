@@ -6,7 +6,7 @@
 		<li class="sidebar-title">Menu</li>
 
 		<!--  Cervejas -->
-		<li sec:authorize="hasAnyAuthority('ROLE_ADMINISTRADOR','ROLE_VENDEDOR', 'ROLE_GERENTE')"><a
+		<li><a
 			class="sidebar-link d-flex justify-content-between align-items-center"
 			data-bs-toggle="collapse" data-bs-target="#submenuCervejas"> <span><i
 					class="fa fa-beer me-2"></i> Cervejas</span> <i
@@ -20,7 +20,7 @@
 			</ul></li>
 
 		<!--  Vendas -->
-		<li sec:authorize="hasAnyAuthority('ROLE_ADMINISTRADOR','ROLE_VENDEDOR')"><a
+		<li><a
 			class="sidebar-link d-flex justify-content-between align-items-center"
 			data-bs-toggle="collapse" data-bs-target="#submenuVendas"> <span><i
 					class="fa fa-shopping-cart me-2"></i> Vendas</span> <i
@@ -33,7 +33,7 @@
 			</ul></li>
 
 		<!--  Clientes -->
-		<li sec:authorize="hasAnyAuthority('ROLE_ADMINISTRADOR','ROLE_VENDEDOR')"><a
+		<li><a
 			class="sidebar-link d-flex justify-content-between align-items-center"
 			data-bs-toggle="collapse" data-bs-target="#submenuClientes"> <span><i
 					class="fa fa-users me-2"></i> Clientes</span> <i
@@ -48,7 +48,7 @@
 
 		<!--Usuarios -->
 
-		<li sec:authorize="hasAuthority('ROLE_ADMINISTRADOR')"><a
+		<li><a
 			class="sidebar-link d-flex justify-content-between align-items-center"
 			data-bs-toggle="collapse" data-bs-target="#submenuUsuarios"> <span><i
 					class="fa fa-user me-2"></i> Usuários</span> <i
@@ -63,7 +63,7 @@
 
 		<!--Configurações -->
 
-		<li sec:authorize="hasAnyAuthority('ROLE_ADMINISTRADOR')"><a
+		<li><a
 			class="sidebar-link d-flex justify-content-between align-items-center"
 			data-bs-toggle="collapse" data-bs-target="#submenuConfiguracoes">
 				<span><i class="fa fa-cog me-2"></i>Configurações</span> <i

@@ -65,6 +65,9 @@ public class Usuario implements Serializable, UserDetails {
     @PastOrPresent(message = "A data de nascimento não pode ser futura")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataNascimento;
+    
+    @Column(name = "url_avatar")
+    private String urlAvatar;
 
     @Column(nullable = false)
     private Boolean ativo = true;
@@ -143,7 +146,13 @@ public class Usuario implements Serializable, UserDetails {
 			return ativo;
 		}
 		
-		
+		public String getUrlAvatar() {
+		    return urlAvatar;
+		}
+
+		public void setUrlAvatar(String urlAvatar) {
+		    this.urlAvatar = urlAvatar;
+		}
 
 		public String getConfirmacaoSenha() {
 			return confirmacaoSenha;
@@ -152,6 +161,7 @@ public class Usuario implements Serializable, UserDetails {
 		public void setConfirmacaoSenha(String confirmacaoSenha) {
 			this.confirmacaoSenha = confirmacaoSenha;
 		}
+		
 
 		@Override
 		public int hashCode() {
@@ -169,25 +179,62 @@ public class Usuario implements Serializable, UserDetails {
 			Usuario other = (Usuario) obj;
 			return Objects.equals(id, other.id);
 		}
+		
+		@Override
+		public Collection<? extends GrantedAuthority> getAuthorities() {
 
+		    System.out.println("======== DEBUG AUTHORITIES ========");
+		    System.out.println("Usuário: " + this.getEmailUsuario());
+
+		    Set<SimpleGrantedAuthority> authorities = new HashSet<>();
+
+		    for (Grupo grupo : this.getGrupos()) {
+
+		        System.out.println("Grupo: " + grupo.getNomeGrupo());
+		        System.out.println("Permissões do grupo:");
+
+		        for (Permissao permissao : grupo.getPermissoes()) {
+
+		            System.out.println(" - " + permissao.getNomePermissao());
+
+		            if (Boolean.TRUE.equals(permissao.getAtivo())) {
+		                authorities.add(
+		                    new SimpleGrantedAuthority(
+		                        permissao.getNomePermissao().toUpperCase()
+		                    )
+		                );
+		            }
+		        }
+		    }
+
+		    System.out.println("Authorities finais: " + authorities);
+		    System.out.println("===================================");
+
+		    return authorities;
+		}
+
+		/*
 		@Override
 		public Collection<? extends GrantedAuthority> getAuthorities() {
 
 		    Set<SimpleGrantedAuthority> authorities = new HashSet<>();
 
-		    for (Grupo grupo : this.grupos) {
+		    for (Grupo grupo : this.getGrupos()) {
 		        for (Permissao permissao : grupo.getPermissoes()) {
-		            authorities.add(
-		                new SimpleGrantedAuthority(
-		                    permissao.getNomePermissao()
-		                )
-		            );
+
+		            if (Boolean.TRUE.equals(permissao.getAtivo())) {
+		                authorities.add(
+		                    new SimpleGrantedAuthority(
+		                        permissao.getNomePermissao().toUpperCase()
+		                    )
+		                );
+		            }
 		        }
 		    }
 
 		    return authorities;
-		}
-
+		} */
+		
 		@Override
 		public String getUsername() {
 		    return this.emailUsuario;

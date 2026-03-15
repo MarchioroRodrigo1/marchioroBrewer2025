@@ -10,63 +10,77 @@ import com.marchioro.brewer.security.CustomAuthenticationSuccessHandler;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-	
+
     private final CustomAuthenticationSuccessHandler successHandler;
 
     public SecurityConfig(CustomAuthenticationSuccessHandler successHandler) {
         this.successHandler = successHandler;
     }
-	
-	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-	    http
-	        .authorizeHttpRequests(auth -> auth
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-	            // Público
-	            .requestMatchers("/login", "/css/**", "/js/**")
-	                .permitAll()
+        http
+        .authorizeHttpRequests(auth -> auth
 
-	            // ADMINISTRADOR
-	            .requestMatchers("/usuario/**")            
-	                .hasAuthority("ROLE_ADMINISTRADOR")
-	            .requestMatchers("/cerveja/**")
-	                .hasAnyAuthority("ROLE_ADMINISTRADOR")
-	            .requestMatchers("/venda/**")
-	                .hasAnyAuthority("ROLE_ADMINISTRADOR")
-	            .requestMatchers("/grupo/**")
-	                .hasAnyAuthority("ROLE_ADMINISTRADOR")
+            // PUBLICO
+            .requestMatchers("/login", "/css/**", "/js/**", "/images/**")
+            .permitAll()
 
+            // USUARIOS
+            .requestMatchers("/usuario/novo")
+            .hasAuthority("CADASTRAR_USUARIO")
 
-	            // GERENTE
-	            .requestMatchers("/cerveja/**")
-	                .hasAnyAuthority("ROLE_GERENTE")
+            .requestMatchers("/usuario/**")
+            .hasAuthority("LISTAR_USUARIO")
 
-	            // VENDAS
-	            .requestMatchers("/vendas/**")
-	                .hasAuthority("ROLE_VENDEDOR")
-	            .requestMatchers("/venda/**")
-	                .hasAnyAuthority("ROLE_VENDEDOR")
-	            .requestMatchers("/cliente/**")
-	                .hasAnyAuthority("ROLE_VENDEDOR")
+            // CERVEJAS
+            .requestMatchers("/cervejas/novo")
+            .hasAuthority("CADASTRAR_CERVEJA")
 
-	            // QUALQUER OUTRO
-	            .anyRequest().authenticated()
-	        )
+            .requestMatchers("/cervejas/**")
+            .hasAuthority("LISTAR_CERVEJA")
 
-	        .formLogin(form -> form
-	            .loginPage("/login")
-	            .loginProcessingUrl("/login")
-	            .successHandler(successHandler)
-	            .failureUrl("/login?error")
-	            .permitAll()
-	        )
+            // CLIENTES
+            .requestMatchers("/clientes/novo")
+            .hasAuthority("CADASTRAR_CLIENTE")
 
-	        .logout(logout -> logout
-	            .logoutUrl("/logout")
-	            .logoutSuccessUrl("/login?logout")
-	        );
+            .requestMatchers("/clientes/**")
+            .hasAuthority("LISTAR_CLIENTE")
 
-	    return http.build();
-	}
+            // VENDAS
+            .requestMatchers("/vendas/nova")
+            .hasAuthority("REALIZAR_VENDA")
+
+            .requestMatchers("/vendas/**")
+            .hasAuthority("LISTAR_VENDA")
+
+            // GRUPOS
+            .requestMatchers("/grupo/**")
+            .hasAuthority("GERENCIAR_GRUPO")
+
+            // PERMISSOES
+            .requestMatchers("/permissao/**")
+            .hasAuthority("GERENCIAR_PERMISSAO")
+
+            // QUALQUER OUTRA
+            .anyRequest()
+            .authenticated()
+        )
+
+        .formLogin(form -> form
+            .loginPage("/login")
+            .loginProcessingUrl("/login")
+            .successHandler(successHandler)
+            .failureUrl("/login?error")
+            .permitAll()
+        )
+
+        .logout(logout -> logout
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/login?logout")
+        );
+
+        return http.build();
+    }
 }

@@ -10,6 +10,7 @@ CREATE TABLE cerveja (
     sabor VARCHAR(20) NOT NULL,
     estilo_id BIGINT NOT NULL,
     quantidade_estoque INT DEFAULT 0,
+    url_imagem varchar(255),
     PRIMARY KEY (id),
     CONSTRAINT fk_cerveja_estilo FOREIGN KEY (estilo_id) REFERENCES estilo(id)
 );

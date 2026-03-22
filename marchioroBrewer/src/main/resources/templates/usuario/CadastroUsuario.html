@@ -14,6 +14,13 @@
 		<div class="container-fluid">
 			<h1>Cadastro de Usuarios</h1>
 		</div>
+		 <!-- =================================================
+			Campo oculto para a mensagem
+        ================================================== -->
+        <input type="hidden"
+       id="mensagemSucesso"
+       th:if="${mensagemSucesso}"
+       th:value="${mensagemSucesso}">
 	</div>
 	<div class="container-fluid">
 

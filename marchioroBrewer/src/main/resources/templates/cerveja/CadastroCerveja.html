@@ -13,7 +13,7 @@
 			<h1 class="mb-4 text-center text-md-start">Cadastro de Cerveja</h1>
 
 			<form method="POST" th:action="@{/cervejas/novo}"
-				th:object="${cerveja}">
+				th:object="${cerveja}" enctype="multipart/form-data">
 
 				<!-- ================= LINHA 1 ================= -->
 				<div class="row g-3 mb-3">
@@ -56,6 +56,24 @@
 						th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}">
 					</div>
 				</div>
+				
+				<!-- ================= IMAGEM ================= -->
+<div class="mb-3">
+    <label class="form-label">Imagem da cerveja</label>
+
+    <input type="file"
+           name="arquivo"
+           class="form-control"
+           accept="image/*">
+
+    <!-- Preview -->
+    <div class="mt-3">
+        <img th:if="${cerveja.urlImagem != null}"
+             th:src="@{/cervejas/imagem/{img}(img=${cerveja.urlImagem})}"
+             class="rounded"
+             style="max-height:150px;">
+    </div>
+</div>
 
 				<!-- ================= LINHA 2 ================= -->
 				<div class="row g-3 mb-3">

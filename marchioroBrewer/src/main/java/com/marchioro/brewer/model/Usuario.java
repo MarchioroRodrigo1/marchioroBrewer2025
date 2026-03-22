@@ -212,28 +212,6 @@ public class Usuario implements Serializable, UserDetails {
 
 		    return authorities;
 		}
-
-		/*
-		@Override
-		public Collection<? extends GrantedAuthority> getAuthorities() {
-
-		    Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-
-		    for (Grupo grupo : this.getGrupos()) {
-		        for (Permissao permissao : grupo.getPermissoes()) {
-
-		            if (Boolean.TRUE.equals(permissao.getAtivo())) {
-		                authorities.add(
-		                    new SimpleGrantedAuthority(
-		                        permissao.getNomePermissao().toUpperCase()
-		                    )
-		                );
-		            }
-		        }
-		    }
-
-		    return authorities;
-		} */
 		
 		@Override
 		public String getUsername() {

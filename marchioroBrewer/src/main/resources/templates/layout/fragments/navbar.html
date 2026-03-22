@@ -34,10 +34,10 @@
        role="button"
        data-bs-toggle="dropdown">
 
+ 
         <!-- Avatar -->
-        <img th:src="${#authentication.principal.urlAvatar != null 
-              ? #authentication.principal.urlAvatar 
-              : '/images/avatar-default.png'}"
+        
+         <img th:src="@{/usuario/avatar/{id}(id=${#authentication.principal.id})}"
      class="rounded-circle me-2"
      style="width:32px;height:32px;object-fit:cover;">
 

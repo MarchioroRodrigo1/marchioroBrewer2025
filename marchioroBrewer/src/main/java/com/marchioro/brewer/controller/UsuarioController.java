@@ -1,5 +1,10 @@
 package com.marchioro.brewer.controller;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 import java.util.Set;
 
@@ -7,14 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.ResponseEntity;
 
 import com.marchioro.brewer.model.OnCreate;
 import com.marchioro.brewer.model.Usuario;
@@ -38,11 +49,11 @@ public class UsuarioController {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private UsuarioRepository usuarios;
-
-    @Autowired
     private GrupoRepository grupos;
 
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
     // =====================================================
     // ABRIR FORM NOVO USUÁRIO
     // =====================================================
@@ -68,7 +79,7 @@ public class UsuarioController {
             RedirectAttributes attributes) {
 
         // =====================================================
-        // 1️⃣ VALIDAÇÃO POR GRUPO (CREATE / UPDATE)
+        //  VALIDAÇÃO POR GRUPO (CREATE / UPDATE)
         // =====================================================
         Set<ConstraintViolation<Usuario>> violations;
 
@@ -97,10 +108,10 @@ public class UsuarioController {
         }
 
         // =====================================================
-        // 2️⃣ VALIDAR EMAIL DUPLICADO (CORRIGIDO)
+        //  VALIDAR EMAIL DUPLICADO (CORRIGIDO)
         // =====================================================
         Optional<Usuario> usuarioExistente =
-                usuarios.findByEmailUsuario(usuario.getEmailUsuario());
+                usuarioRepository.findByEmailUsuario(usuario.getEmailUsuario());
 
         if (usuarioExistente.isPresent()) {
 
@@ -118,7 +129,7 @@ public class UsuarioController {
         }
 
         // =====================================================
-        // 3️⃣ CONFIRMAÇÃO DE SENHA (somente se digitada)
+        //  CONFIRMAÇÃO DE SENHA (somente se digitada)
         // =====================================================
         if (usuario.getSenhaUsuario() != null &&
             !usuario.getSenhaUsuario().isBlank()) {
@@ -152,7 +163,7 @@ public class UsuarioController {
 
             // ===== EDIÇÃO =====
             Usuario usuarioBanco =
-                    usuarios.findById(usuario.getId()).orElseThrow();
+                    usuarioRepository.findById(usuario.getId()).orElseThrow();
 
             if (usuario.getSenhaUsuario() == null ||
                 usuario.getSenhaUsuario().isBlank()) {
@@ -178,10 +189,10 @@ public class UsuarioController {
         // =====================================================
         // SALVAR
         // =====================================================
-        usuarios.save(usuario);
+        usuarioRepository.save(usuario);
 
         attributes.addFlashAttribute(
-                "mensagem",
+                "mensagemSucesso",
                 "Usuário salvo com sucesso!");
 
         return new ModelAndView("redirect:/usuario");
@@ -201,13 +212,13 @@ public class UsuarioController {
 
             mv.addObject(
                     "usuarios",
-                    usuarios.findByNomeUsuarioContainingIgnoreCaseAndAtivoTrue(nomeUsuario));
+                    usuarioRepository.findByNomeUsuarioContainingIgnoreCaseAndAtivoTrue(nomeUsuario));
 
         } else {
 
             mv.addObject(
                     "usuarios",
-                    usuarios.findByAtivoTrue());
+                    usuarioRepository.findByAtivoTrue());
         }
 
         mv.addObject("nomeUsuario", nomeUsuario);
@@ -222,7 +233,7 @@ public class UsuarioController {
     public ModelAndView editar(@PathVariable Long id) {
 
         Usuario usuario =
-                usuarios.findById(id)
+                usuarioRepository.findById(id)
                         .orElseThrow(() ->
                                 new IllegalArgumentException("Usuário inválido"));
 
@@ -243,13 +254,13 @@ public class UsuarioController {
                           RedirectAttributes attributes) {
 
         Usuario usuario =
-                usuarios.findById(id)
+                usuarioRepository.findById(id)
                         .orElseThrow(() ->
                                 new IllegalArgumentException("Usuário inválido"));
 
         usuario.setAtivo(false);
 
-        usuarios.save(usuario);
+        usuarioRepository.save(usuario);
 
         attributes.addFlashAttribute(
                 "mensagemSucesso",
@@ -275,4 +286,61 @@ public class UsuarioController {
 
         return "usuario/listagemUsuario";
     }
+    
+    
+    @GetMapping("/avatar/{id}")
+    @ResponseBody
+    public ResponseEntity<Resource> avatar(@PathVariable Long id) throws IOException {
+
+        Usuario usuario = usuarioRepository.findById(id).orElse(null);
+
+        if (usuario == null || usuario.getUrlAvatar() == null) {
+            Path path = Paths.get("src/main/resources/static/images/avatar-default.png");
+            Resource resource = new UrlResource(path.toUri());
+            return ResponseEntity.ok(resource);
+        }
+
+        Path path = Paths.get("uploads/avatars/" + usuario.getUrlAvatar());
+        Resource resource = new UrlResource(path.toUri());
+
+        return ResponseEntity.ok(resource);
+    }
+    
+    //uploadAvatar
+    @PostMapping("/avatar/upload")
+    public String uploadAvatar(
+            @RequestParam("arquivo") MultipartFile arquivo,
+            Authentication authentication,
+            RedirectAttributes attributes) throws IOException {
+
+        if (arquivo.isEmpty()) {
+            attributes.addFlashAttribute("mensagemErro", "Selecione um arquivo!");
+            return "redirect:/usuario";
+        }
+
+        // pega usuário logado
+        String email = authentication.getName();
+        Usuario usuario = usuarioRepository.findByEmailUsuario(email).orElseThrow();
+
+        // gera nome único
+        String nomeArquivo = usuario.getId() + "_" + arquivo.getOriginalFilename();
+
+        // caminho onde será salvo
+        Path caminho = Paths.get("uploads/avatars/" + nomeArquivo);
+
+        // cria pasta se não existir
+        Files.createDirectories(caminho.getParent());
+
+        // salva arquivo
+        Files.copy(arquivo.getInputStream(), caminho, StandardCopyOption.REPLACE_EXISTING);
+
+        // salva no banco
+        usuario.setUrlAvatar(nomeArquivo);
+        usuarioRepository.save(usuario);
+
+        attributes.addFlashAttribute("mensagemSucesso", "Avatar atualizado!");
+
+        return "redirect:/usuario";
+    }
+    
 }

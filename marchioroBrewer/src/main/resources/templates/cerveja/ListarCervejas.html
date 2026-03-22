@@ -69,6 +69,7 @@
                     <th>Estilo</th>
                     <th>Valor</th>
                     <th>Estoque</th>
+                    <th>Imagem</th>
                     <th class="text-center">Ações</th>
                 </tr>
                 </thead>
@@ -81,6 +82,17 @@
                     <td th:text="${cerveja.estilo.nome}"></td>
                     <td th:text="${#numbers.formatDecimal(cerveja.valor,1,'POINT',2,'COMMA')}"></td>
                     <td th:text="${cerveja.quantidadeEstoque}"></td>
+                            
+   <td>
+    <div class="img-box">
+        <img th:if="${cerveja.urlImagem != null}"
+             th:src="@{/cervejas/imagem/{img}(img=${cerveja.urlImagem})}">
+
+        <img th:if="${cerveja.urlImagem == null}"
+             src="/images/beer-default.png">
+    </div>
+</td>
+
 
                     <td class="text-center">
 

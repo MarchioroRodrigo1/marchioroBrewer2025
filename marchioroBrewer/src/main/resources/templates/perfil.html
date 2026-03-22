@@ -1,32 +1,68 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="'layout/LayoutPadrao'">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="'layout/LayoutPadrao'">
 
 <section layout:fragment="conteudo">
 
-	<div class="container-fluid">
+<div class="container mt-4">
 
-		<h2>Meu Perfil</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
 
-		<div class="card p-4">
+            <div class="card shadow-sm border-0">
 
-			<div class="text-center">
-				<img th:src="${usuario.urlAvatar ?: '/images/avatar-default.png'}"
-					class="rounded-circle mb-3"
-					style="width: 120px; height: 120px; object-fit: cover;">
-			</div>
+                <!-- HEADER -->
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Meu Perfil</h4>
+                </div>
 
-			<p>
-				<strong>Nome:</strong> <span th:text="${usuario.nomeUsuario}"></span>
-			</p>
-			<p>
-				<strong>Email:</strong> <span th:text="${usuario.emailUsuario}"></span>
-			</p>
+                <!-- BODY -->
+                <div class="card-body text-center">
 
-		</div>
-	</div>
+                    <!-- AVATAR -->
+                    <img th:src="@{/usuario/avatar/{id}(id=${#authentication.principal.id})}"
+     class="rounded-circle me-2"
+                         style="width:120px;height:120px;object-fit:cover;">
+
+                    <!-- FORM -->
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          th:action="@{/usuario/avatar/upload}">
+
+                        <input type="file"
+                               name="arquivo"
+                               class="form-control mb-3"
+                               accept="image/*">
+
+                        <button class="btn btn-primary w-100">
+                            <i class="fa fa-upload me-2"></i>
+                            Atualizar Foto
+                        </button>
+
+                    </form>
+
+                    <hr>
+
+                    <!-- DADOS -->
+                    <p class="mb-1">
+                        <strong>Nome:</strong><br>
+                        <span th:text="${usuario.nomeUsuario}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Email:</strong><br>
+                        <span th:text="${usuario.emailUsuario}"></span>
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
 </section>
 </html>
-
-

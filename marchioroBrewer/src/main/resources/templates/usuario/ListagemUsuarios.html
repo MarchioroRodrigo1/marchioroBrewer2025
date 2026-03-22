@@ -4,13 +4,17 @@
 	layout:decorate="~{layout/LayoutPadrao}">
 
 <body>
-	<div th:if="${mensagemSucesso}"
-		class="alert alert-success alert-dismissible fade show">
 
-		<span th:text="${mensagemSucesso}"></span>
+<div th:if="${mensagemSucesso}" 
+     class="alert alert-success alert-dismissible fade show">
 
-		<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-	</div>
+    <span th:text="${mensagemSucesso}"></span>
+
+    <button type="button" 
+            class="btn-close" 
+            data-bs-dismiss="alert"></button>
+</div>
+
 	<!-- =========================================================
      CONTEÚDO PRINCIPAL
 ========================================================== -->
@@ -22,7 +26,10 @@
              TÍTULO
         ================================================== -->
 			<h1 class="mb-4">Listagem de Usuários</h1>
+			
+
 		</div>
+	
 
 		<!-- =================================================
              FORMULÁRIO DE FILTRO

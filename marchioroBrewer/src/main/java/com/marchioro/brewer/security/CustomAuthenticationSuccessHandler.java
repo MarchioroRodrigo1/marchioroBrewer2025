@@ -3,14 +3,13 @@ package com.marchioro.brewer.security;
 import java.io.IOException;
 import java.util.Collection;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class CustomAuthenticationSuccessHandler
@@ -21,38 +20,35 @@ public class CustomAuthenticationSuccessHandler
             HttpServletRequest request,
             HttpServletResponse response,
             Authentication authentication)
-            throws IOException, ServletException {
+            throws IOException {
 
         Collection<? extends GrantedAuthority> authorities =
                 authentication.getAuthorities();
 
         String redirectURL = "/";
 
-        for (GrantedAuthority auth : authorities) {
+        // PRIORIDADE DE PERMISSÕES
+        if (hasAuthority(authorities, "CADASTRAR_USUARIO")) {
+            redirectURL = "/usuario/novo";
 
-            String role = auth.getAuthority();
+        } else if (hasAuthority(authorities, "REALIZAR_VENDA")) {
+            redirectURL = "/vendas";
 
-            if (role.equals("ROLE_ADMINISTRADOR")) {
-                redirectURL = "/usuario/novo";
-                break;
-            }
+        } else if (hasAuthority(authorities, "LISTAR_CERVEJA")) {
+            redirectURL = "/cervejas";
 
-            if (role.equals("ROLE_VENDEDOR")) {
-                redirectURL = "/vendas";
-                break;
-            }
-
-            if (role.equals("ROLE_ESTOQUE")) {
-                redirectURL = "/cervejas";
-                break;
-            }
-
-            if (role.equals("ROLE_GERENTE")) {
-                redirectURL = "/";
-                break;
-            }
+        } else if (hasAuthority(authorities, "LISTAR_CLIENTE")) {
+            redirectURL = "/clientes";
         }
 
         response.sendRedirect(redirectURL);
+    }
+
+    private boolean hasAuthority(
+            Collection<? extends GrantedAuthority> authorities,
+            String authority) {
+
+        return authorities.stream()
+                .anyMatch(a -> a.getAuthority().equals(authority));
     }
 }

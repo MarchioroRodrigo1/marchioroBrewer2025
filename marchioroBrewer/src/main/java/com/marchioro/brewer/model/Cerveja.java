@@ -92,6 +92,9 @@ public class Cerveja {
     @OneToMany(mappedBy = "cerveja")
     private List<ItemVenda> itensVenda;
     
+    @Column(name = "url_imagem")
+    private String urlImagem;
+    
     /*Ativo*/
     @Column(nullable = false)
     private boolean ativo = true;
@@ -194,6 +197,16 @@ public class Cerveja {
 
 	public void setItensVenda(List<ItemVenda> itensVenda) {
 		this.itensVenda = itensVenda;
+	}
+	
+	
+
+	public String getUrlImagem() {
+		return urlImagem;
+	}
+
+	public void setUrlImagem(String urlImagem) {
+		this.urlImagem = urlImagem;
 	}
 
 	public boolean isAtivo() {

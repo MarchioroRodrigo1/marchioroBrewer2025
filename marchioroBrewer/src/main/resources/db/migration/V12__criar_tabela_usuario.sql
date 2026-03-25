@@ -22,7 +22,7 @@ CREATE TABLE usuario_grupo (
 );
 
 INSERT INTO `usuario` VALUES 
-(1,'Rodrigo Marchioro','teste@gmail.com','$2a$10$9DsRzNRBpEKxWpq/HgL3K.zF9il.lPfrrqwQKMimHHXexkZCy0Hky','1977-08-25',null,1),
+(1,'Rodrigo','teste@gmail.com','$2a$10$9DsRzNRBpEKxWpq/HgL3K.zF9il.lPfrrqwQKMimHHXexkZCy0Hky','1977-08-25',null,1),
 (2,'Arnaldo Antunes','arnaldo@teste.com.br','$2a$10$WM4dQxUSzliPCfl9f05Ypet9f7h3wxwskTT7myRxawg1Bw8kZ.j2i','2026-03-02',null,1),
 (3,'Wanessa Camargo','wanessa@gmail.com','$2a$10$9Ku8pnMu1NDy1sjh9cSx9.WFqpO.JDQvNpuprfqIPFbCz5n.MvMra','2026-03-02',null,1);
 

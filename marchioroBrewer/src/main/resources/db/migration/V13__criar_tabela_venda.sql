@@ -7,9 +7,7 @@ CREATE TABLE venda (
     observacao VARCHAR(255) NOT NULL,
     data_entrega DATE NOT NULL,
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
-    
-    -- O EnumType.ORDINAL salva o índice do Enum como INT
-    status TINYINT NOT NULL, 
+    status varchar(20) not null,
 
     -- Chaves Estrangeiras (ManyToOne)
     codigo_vendedor BIGINT NOT NULL,

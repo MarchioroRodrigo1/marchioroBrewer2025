@@ -2,6 +2,7 @@ package com.marchioro.brewer.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,41 +43,80 @@ public class SecurityConfig {
         http
         .authorizeHttpRequests(auth -> auth
 
-            .requestMatchers("/login", "/css/**", "/js/**", "/images/**")
-            .permitAll()
+        	    .requestMatchers("/login", "/css/**", "/js/**", "/images/**")
+        	    .permitAll()
 
-            .requestMatchers("/usuario/novo")
-            .hasAuthority("CADASTRAR_USUARIO")
+        	    // =========================
+        	    // AVATAR
+        	    // =========================
+        	    .requestMatchers("/usuario/avatar/**")
+        	    .hasAuthority("ALTERAR_AVATAR")
 
-            .requestMatchers("/usuario/**")
-            .hasAuthority("LISTAR_USUARIO")
+        	    // =========================
+        	    // USUÁRIOS
+        	    // =========================
+        	    .requestMatchers("/usuario/novo")
+        	    .hasAuthority("CADASTRAR_USUARIO")
 
-            .requestMatchers("/cervejas/novo")
-            .hasAuthority("CADASTRAR_CERVEJA")
+        	    .requestMatchers("/usuario/**")
+        	    .hasAuthority("LISTAR_USUARIO")
 
-            .requestMatchers("/cervejas/**")
-            .hasAuthority("LISTAR_CERVEJA")
+        	    // =========================
+        	    // CERVEJAS 
+        	    // =========================
+        	 // =========================
+        	 // NOVA
+        	 // =========================
+        	 .requestMatchers(HttpMethod.GET, "/cervejas/novo")
+        	 .hasAuthority("CADASTRAR_CERVEJA")
 
-            .requestMatchers("/clientes/novo")
-            .hasAuthority("CADASTRAR_CLIENTE")
+        	 .requestMatchers(HttpMethod.POST, "/cervejas/novo")
+        	 .hasAuthority("CADASTRAR_CERVEJA")
 
-            .requestMatchers("/clientes/**")
-            .hasAuthority("LISTAR_CLIENTE")
+        	 // =========================
+        	 // EDITA
+        	 // =========================
+        	 .requestMatchers(HttpMethod.GET, "/cervejas/{id}")
+        	 .hasAuthority("EDITAR_CERVEJA")
 
-            .requestMatchers("/vendas/nova")
-            .hasAuthority("REALIZAR_VENDA")
+        	 .requestMatchers(HttpMethod.POST, "/cervejas/{id}")
+        	 .hasAuthority("EDITAR_CERVEJA")
 
-            .requestMatchers("/vendas/**")
-            .hasAuthority("LISTAR_VENDA")
+        	 // =========================
+        	 // LISTAR
+        	 // =========================
+        	 .requestMatchers("/cervejas")
+        	 .hasAuthority("LISTAR_CERVEJA")
 
-            .requestMatchers("/grupo/**")
-            .hasAuthority("GERENCIAR_GRUPO")
+        	    // =========================
+        	    // CLIENTES
+        	    // =========================
+        	    .requestMatchers("/clientes/novo")
+        	    .hasAuthority("CADASTRAR_CLIENTE")
 
-            .requestMatchers("/permissao/**")
-            .hasAuthority("GERENCIAR_PERMISSAO")
+        	    .requestMatchers("/clientes/**")
+        	    .hasAuthority("LISTAR_CLIENTE")
 
-            .anyRequest().authenticated()
-        )
+        	    // =========================
+        	    // VENDAS
+        	    // =========================
+        	    .requestMatchers("/vendas/nova")
+        	    .hasAuthority("REALIZAR_VENDA")
+
+        	    .requestMatchers("/vendas/**")
+        	    .hasAuthority("LISTAR_VENDA")
+
+        	    // =========================
+        	    // CONFIG
+        	    // =========================
+        	    .requestMatchers("/grupo/**")
+        	    .hasAuthority("GERENCIAR_GRUPO")
+
+        	    .requestMatchers("/permissao/**")
+        	    .hasAuthority("GERENCIAR_PERMISSAO")
+
+        	    .anyRequest().authenticated()
+        	)
 
         .formLogin(form -> form
             .loginPage("/login")

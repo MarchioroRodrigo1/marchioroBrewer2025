@@ -25,4 +25,7 @@ public interface CervejasRepository extends JpaRepository<Cerveja, Long> {
 	            Long estiloId,
 	            Pageable pageable
 	    );
+	    
+	    
+	    
 	}

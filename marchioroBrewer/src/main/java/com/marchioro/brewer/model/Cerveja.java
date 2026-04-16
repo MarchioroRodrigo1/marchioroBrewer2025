@@ -35,7 +35,7 @@ public class Cerveja {
 
     /* Descrição – obrigatória */
     @NotBlank(message = "A descrição é obrigatória")
-    @Size(max = 1500, message = "A descrição deve ter no máximo 255 caracteres")
+    @Size(max = 1500, message = "A descrição deve ter no máximo 1500 caracteres")
     @Column(nullable = false, length = 1500)
     private String descricao;
 

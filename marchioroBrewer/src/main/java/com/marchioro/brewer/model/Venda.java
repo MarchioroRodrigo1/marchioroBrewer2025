@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,189 +26,209 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-
 @Entity
 @Table(name = "venda")
-public class Venda implements Serializable{
+public class Venda implements Serializable {
 
-	private static final long serialVersionUID = 1L;
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;	
-	
-	@Column(name = "data_criacao", nullable = false)
-	private LocalDate dataCriacao;
-	
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "data_criacao", nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDate dataCriacao;
+
     @NotNull(message = "O valor do frete é obrigatório")
-    @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
+    @DecimalMin(value = "0.00", message = "O valor deve ser maior ou igual a zero")
     @Digits(integer = 13, fraction = 2)
     @Column(name = "valor_frete", precision = 15, scale = 2)
-	private BigDecimal valorFrete;
-	
-    @NotNull(message = "O valor é obrigatório")
+    private BigDecimal valorFrete = BigDecimal.ZERO;
+
+    @NotNull(message = "O valor do desconto é obrigatório")
     @DecimalMin(value = "0.00", message = "O valor deve ser maior ou igual a zero")
     @Digits(integer = 13, fraction = 2)
     @Column(name = "valor_desconto", precision = 15, scale = 2)
-	private BigDecimal valorDesconto;
-	
+    private BigDecimal valorDesconto = BigDecimal.ZERO;
+
     @NotNull(message = "O valor total é obrigatório")
-    @DecimalMin(value = "0.01", message = "O valor deve ser maior que zero")
+    @DecimalMin(value = "0.00", message = "O valor deve ser maior ou igual a zero")
     @Digits(integer = 13, fraction = 2)
     @Column(name = "valor_total", precision = 15, scale = 2)
-	private BigDecimal valorTotal;
-	
+    private BigDecimal valorTotal = BigDecimal.ZERO;
+
     @NotBlank(message = "A observação é obrigatória")
     @Size(max = 255, message = "A observação deve ter no máximo 255 caracteres")
     @Column(nullable = false, length = 255)
-	private String observacao;
-	
-    @NotNull(message = "A data da entrega é obrigatório")
+    private String observacao;
+
+    @NotNull(message = "A data da entrega é obrigatória")
     @Column(name = "data_entrega", nullable = false)
-	private LocalDate dataEntrega;
-	
-    // Relacionamento ManyToOne (Muitas vendas para Um vendedor)
+    private LocalDate dataEntrega;
+
+    // ================= RELACIONAMENTOS =================
+
     @NotNull(message = "O vendedor é obrigatório")
     @ManyToOne
     @JoinColumn(name = "codigo_vendedor", nullable = false)
     private Usuario vendedor;
-	
-	 // Relacionamento ManyToOne (Muitas vendas para Um cliente)
+
     @NotNull(message = "O cliente é obrigatório")
     @ManyToOne
     @JoinColumn(name = "codigo_cliente", nullable = false)
     private Cliente cliente;
-	
-    // Relacionamento OneToMany (Uma venda para Muitos itens de venda)
-    // Usamos CascadeType.ALL para garantir que ao salvar a Venda, os itens também sejam salvos/atualizados.
+
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemVenda> itens;
-	
- // Relacionamento com StatusVenda, usando INT/ORDINAL
+
     @NotNull(message = "O status da venda é obrigatório")
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private StatusVenda status;
-	 
-	 @Column(nullable = false)
-	 private Boolean ativo = true;
 
-	 public Venda() {
-		
-	 }
+    @Column(nullable = false)
+    private Boolean ativo = true;
 
-	 public Long getId() {
-		 return id;
-	 }
+    // ================= CONSTRUTOR =================
 
-	 public void setId(Long id) {
-		 this.id = id;
-	 }
+    public Venda() {
+    }
 
-	 public LocalDate getDataCriacao() {
-		 return dataCriacao;
-	 }
+    // ================= REGRA DE NEGÓCIO =================
 
-	 public void setDataCriacao(LocalDate dataCriacao) {
-		 this.dataCriacao = dataCriacao;
-	 }
+    public void calcularTotal() {
 
-	 public BigDecimal getValorFrete() {
-		 return valorFrete;
-	 }
+        BigDecimal totalItens = BigDecimal.ZERO;
 
-	 public void setValorFrete(BigDecimal valorFrete) {
-		 this.valorFrete = valorFrete;
-	 }
+        if (itens != null) {
+            for (ItemVenda item : itens) {
+                if (item.getValorUnitario() != null && item.getQuantidade() != null) {
+                    BigDecimal totalItem = item.getValorUnitario()
+                            .multiply(BigDecimal.valueOf(item.getQuantidade()));
+                    totalItens = totalItens.add(totalItem);
+                }
+            }
+        }
 
-	 public BigDecimal getValorDesconto() {
-		 return valorDesconto;
-	 }
+        BigDecimal frete = valorFrete != null ? valorFrete : BigDecimal.ZERO;
+        BigDecimal desconto = valorDesconto != null ? valorDesconto : BigDecimal.ZERO;
 
-	 public void setValorDesconto(BigDecimal valorDesconto) {
-		 this.valorDesconto = valorDesconto;
-	 }
+        this.valorTotal = totalItens.add(frete).subtract(desconto);
+    }
 
-	 public BigDecimal getValorTotal() {
-		 return valorTotal;
-	 }
+    // ================= GETTERS E SETTERS =================
 
-	 public void setValorTotal(BigDecimal valorTotal) {
-		 this.valorTotal = valorTotal;
-	 }
+    public Long getId() {
+        return id;
+    }
 
-	 public String getObservacao() {
-		 return observacao;
-	 }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	 public void setObservacao(String observacao) {
-		 this.observacao = observacao;
-	 }
+    public LocalDate getDataCriacao() {
+        return dataCriacao;
+    }
 
-	 public LocalDate getDataEntrega() {
-		 return dataEntrega;
-	 }
+    public void setDataCriacao(LocalDate dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
 
-	 public void setDataEntrega(LocalDate dataEntrega) {
-		 this.dataEntrega = dataEntrega;
-	 }
+    public BigDecimal getValorFrete() {
+        return valorFrete;
+    }
 
-	 public Usuario getVendedor() {
-		 return vendedor;
-	 }
+    public void setValorFrete(BigDecimal valorFrete) {
+        this.valorFrete = valorFrete;
+    }
 
-	 public void setVendedor(Usuario vendedor) {
-		 this.vendedor = vendedor;
-	 }
+    public BigDecimal getValorDesconto() {
+        return valorDesconto;
+    }
 
-	 public Cliente getCliente() {
-		 return cliente;
-	 }
+    public void setValorDesconto(BigDecimal valorDesconto) {
+        this.valorDesconto = valorDesconto;
+    }
 
-	 public void setCliente(Cliente cliente) {
-		 this.cliente = cliente;
-	 }
+    public BigDecimal getValorTotal() {
+        return valorTotal;
+    }
 
-	 public List<ItemVenda> getItens() {
-		 return itens;
-	 }
+    public void setValorTotal(BigDecimal valorTotal) {
+        this.valorTotal = valorTotal;
+    }
 
-	 public void setItens(List<ItemVenda> itens) {
-		 this.itens = itens;
-	 }	 
+    public String getObservacao() {
+        return observacao;
+    }
 
-	   public StatusVenda getStatus() {
-		return status;
-	}
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
+    }
 
-	 public void setStatus(StatusVenda status) {
-		 this.status = status;
-	 }
+    public LocalDate getDataEntrega() {
+        return dataEntrega;
+    }
 
-	   public Boolean isAtivo() {
-			return ativo;
-		}
+    public void setDataEntrega(LocalDate dataEntrega) {
+        this.dataEntrega = dataEntrega;
+    }
 
-	 public void setAtivo(Boolean ativo) {
-		 this.ativo = ativo;
-	 }
+    public Usuario getVendedor() {
+        return vendedor;
+    }
 
-	 @Override
-	 public int hashCode() {
-		return Objects.hash(id);
-	 }
+    public void setVendedor(Usuario vendedor) {
+        this.vendedor = vendedor;
+    }
 
-	 @Override
-	 public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Venda other = (Venda) obj;
-		return Objects.equals(id, other.id);
-	 }
-	 
-	 
+    public Cliente getCliente() {
+        return cliente;
+    }
 
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public List<ItemVenda> getItens() {
+        return itens;
+    }
+
+    public void setItens(List<ItemVenda> itens) {
+        this.itens = itens;
+    }
+
+    public StatusVenda getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusVenda status) {
+        this.status = status;
+    }
+
+    public Boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    // ================= EQUALS E HASHCODE =================
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        Venda other = (Venda) obj;
+        return Objects.equals(id, other.id);
+    }
 }

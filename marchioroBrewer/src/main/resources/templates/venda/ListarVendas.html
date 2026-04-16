@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/LayoutPadrao}">
+
+<body>
+
+<section layout:fragment="conteudo">
+
+    <div class="container-fluid mt-4">
+
+        <h1 class="mb-4">Listagem de Vendas</h1>
+
+        <!-- Mensagem -->
+        <input type="hidden"
+               id="mensagemSucesso"
+               th:if="${mensagemSucesso}"
+               th:value="${mensagemSucesso}">
+
+        <!-- TABELA -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+
+                <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>Data</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th class="text-center">Ações</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="venda : ${page.content}">
+                    <td th:text="${venda.id}"></td>
+                    <td th:text="${venda.cliente.nomeCliente}"></td>
+                    <td th:text="${venda.vendedor.nomeUsuario}"></td>
+                    <td th:text="${#temporals.format(venda.dataCriacao, 'dd/MM/yyyy')}"></td>
+                    <td th:text="${venda.status}"></td>
+                    <td th:text="${#numbers.formatDecimal(venda.valorTotal,1,'POINT',2,'COMMA')}"></td>
+
+                    <td class="text-center">
+
+                        <!-- EDITAR -->
+                        <a class="btn btn-sm btn-outline-primary"
+                           th:href="@{/vendas/{id}(id=${venda.id})}">
+                            <i class="fa fa-edit"></i>
+                            Editar
+                        </a>
+
+                        <!-- EXCLUIR -->
+                        <button type="button"
+                               class="btn btn-sm btn-outline-danger btn-excluir"
+                                th:attr="data-id=${venda.id}, data-nome=${venda.id}, data-url=@{/vendas}">
+                            <i class="fa fa-trash"></i><span class="d-none d-md-inline">
+									Excluir</span>
+                         
+                        </button>
+
+                    </td>
+                </tr>
+
+                <tr th:if="${page.totalElements == 0}">
+                    <td colspan="7" class="text-center text-muted">
+                        Nenhuma venda cadastrada.
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+
+        <!-- PAGINAÇÃO -->
+        <nav th:if="${page.totalPages > 1}">
+            <ul class="pagination">
+
+                <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/vendas(page=${page.number - 1})}">
+                        Anterior
+                    </a>
+                </li>
+
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+                    th:classappend="${i == page.number} ? 'active'">
+                    <a class="page-link"
+                       th:text="${i + 1}"
+                       th:href="@{/vendas(page=${i})}">
+                    </a>
+                </li>
+
+                <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                    <a class="page-link"
+                       th:href="@{/vendas(page=${page.number + 1})}">
+                        Próximo
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+
+    </div>
+
+    <!-- MODAL -->
+    <div th:replace="modal-excluir :: modalExcluir"></div>
+
+    <script th:src="@{/js/delete-entity.js}"></script>
+
+</section>
+
+</body>
+</html>

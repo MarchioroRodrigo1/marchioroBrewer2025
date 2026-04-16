@@ -55,7 +55,8 @@
                 <td class="text-center">
 
                     <!-- BOTÃO NÃO ENVIA FORM -->
-                    <button type="button"
+                    <button sec:authorize="hasAuthority('EXCLUIR_ESTILO')"
+                    		type="button"
                             class="btn btn-sm btn-outline-danger btn-excluir"
                             th:attr="data-id=${estilo.id}, data-nome=${estilo.nome}, data-url=@{/estilos}">
                         <i class="fa fa-trash"></i> Excluir

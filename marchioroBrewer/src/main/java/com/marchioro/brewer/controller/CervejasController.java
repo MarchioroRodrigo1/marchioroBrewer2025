@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -33,6 +32,7 @@ import com.marchioro.brewer.dto.CervejaFiltro;
 import com.marchioro.brewer.model.Cerveja;
 import com.marchioro.brewer.model.Origem;
 import com.marchioro.brewer.model.Sabor;
+import com.marchioro.brewer.repository.CervejasRepository;
 import com.marchioro.brewer.repository.EstiloRepository;
 import com.marchioro.brewer.service.CervejaService;
 
@@ -42,6 +42,7 @@ import jakarta.validation.Valid;
 @RequestMapping("/cervejas") // Prefixo base do controller
 public class CervejasController {
 
+	private CervejasRepository cervejasRepository;
     private static final Logger logger =
             LoggerFactory.getLogger(CervejasController.class);
 
@@ -52,10 +53,12 @@ public class CervejasController {
     // Injeção de dependências via construtor
     // ------------------------------------------------------------
     public CervejasController(EstiloRepository estiloRepository,
-                              CervejaService cervejaService) {
-        this.estiloRepository = estiloRepository;
-        this.cervejaService = cervejaService;
-    }
+            CervejaService cervejaService,
+            CervejasRepository cervejasRepository) {
+this.estiloRepository = estiloRepository;
+this.cervejaService = cervejaService;
+this.cervejasRepository = cervejasRepository;
+}
 
     // ------------------------------------------------------------
     // Tela de cadastro (GET /cervejas/novo)
@@ -231,4 +234,18 @@ public String listar(
         return ResponseEntity.ok(resource);
     }
     
+    //busacar cerveja
+    @GetMapping("/buscar")
+    @ResponseBody
+    public Page<Cerveja> buscarCervejas(
+            @RequestParam(required = false) String nome,
+            Pageable pageable) {
+
+        if (nome != null && !nome.isEmpty()) {
+            return cervejasRepository
+                    .findByNomeContainingIgnoreCaseAndAtivoTrue(nome, pageable);
+        }
+
+        return cervejasRepository.findByAtivoTrue(pageable);
+    }
 }

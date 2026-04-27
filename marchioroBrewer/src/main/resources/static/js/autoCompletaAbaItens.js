@@ -5,6 +5,68 @@ let fim = false;
 let itens = [];
 
 // ============================
+// INIT
+// ============================
+document.addEventListener("DOMContentLoaded", () => {
+
+    carregarCervejas();
+
+    // SCROLL
+    document.getElementById("catalogo-container")
+        ?.addEventListener("scroll", function () {
+
+            if (this.scrollTop + this.clientHeight >= this.scrollHeight - 50) {
+                carregarCervejas(document.getElementById("buscaProduto")?.value || '');
+            }
+        });
+
+    // BUSCA
+    document.getElementById("buscaProduto")
+        ?.addEventListener("keyup", function () {
+
+            pagina = 0;
+            fim = false;
+
+            document.getElementById("catalogo").innerHTML = "";
+
+            carregarCervejas(this.value);
+        });
+
+    // TOTAL
+    document.querySelector('[name="valorFrete"]')
+        ?.addEventListener("input", calcularTotal);
+
+    document.querySelector('[name="valorDesconto"]')
+        ?.addEventListener("input", calcularTotal);
+
+    //  SUBMIT CORRETO
+    const form = document.getElementById("formVenda");
+
+    if (form) {
+        form.addEventListener("submit", function (event) {
+
+            const input = document.getElementById("itensJson");
+
+            if (!input) {
+                console.error("Input itensJson NÃO encontrado!");
+                event.preventDefault();
+                return;
+            }
+
+            if (itens.length === 0) {
+                event.preventDefault();
+                alert("Adicione pelo menos um item!");
+                return;
+            }
+
+            input.value = JSON.stringify(itens);
+
+            console.log("JSON enviado:", input.value);
+        });
+    }
+});
+
+// ============================
 // CATÁLOGO
 // ============================
 function carregarCervejas(nome = '') {
@@ -12,6 +74,7 @@ function carregarCervejas(nome = '') {
     if (carregando || fim) return;
 
     carregando = true;
+
     const loading = document.getElementById("loading");
     if (loading) loading.style.display = "block";
 
@@ -20,6 +83,7 @@ function carregarCervejas(nome = '') {
         .then(data => {
 
             const catalogo = document.getElementById("catalogo");
+            if (!catalogo) return;
 
             data.content.forEach(cerveja => {
 
@@ -58,7 +122,6 @@ function carregarCervejas(nome = '') {
                     </div>
                 `;
 
-                // EVENTOS
                 card.querySelector(".btn-add")
                     .addEventListener("click", () => adicionarItem(cerveja));
 
@@ -74,12 +137,11 @@ function carregarCervejas(nome = '') {
             fim = data.last;
             pagina++;
 
+        })
+        .catch(err => console.error("Erro ao carregar cervejas:", err))
+        .finally(() => {
             carregando = false;
             if (loading) loading.style.display = "none";
-        })
-        .catch(err => {
-            console.error("Erro ao carregar cervejas:", err);
-            carregando = false;
         });
 }
 
@@ -113,7 +175,6 @@ function adicionarItem(cerveja) {
     }
 
     atualizarTabela();
-    calcularTotal();
 }
 
 // ============================
@@ -122,6 +183,8 @@ function adicionarItem(cerveja) {
 function atualizarTabela() {
 
     const tbody = document.getElementById("tabela-itens");
+    if (!tbody) return;
+
     tbody.innerHTML = "";
 
     itens.forEach((item, index) => {
@@ -206,12 +269,10 @@ function calcularTotal() {
 function abrirModal(cerveja) {
 
     const modalElement = document.getElementById('modalCerveja');
-    if (!modalElement) {
-        console.error("Modal não encontrado!");
-        return;
-    }
+    if (!modalElement) return;
 
     document.getElementById("modalTitulo").innerText = cerveja.nome;
+
     document.getElementById("modalImagem").src =
         cerveja.urlImagem
             ? '/cervejas/imagem/' + cerveja.urlImagem
@@ -224,36 +285,3 @@ function abrirModal(cerveja) {
 
     bootstrap.Modal.getOrCreateInstance(modalElement).show();
 }
-
-// ============================
-// INIT
-// ============================
-document.addEventListener("DOMContentLoaded", () => {
-
-    carregarCervejas();
-
-    document.getElementById("catalogo-container")
-        ?.addEventListener("scroll", function () {
-
-        if (this.scrollTop + this.clientHeight >= this.scrollHeight - 50) {
-            carregarCervejas(document.getElementById("buscaProduto").value);
-        }
-    });
-
-    document.getElementById("buscaProduto")
-        ?.addEventListener("keyup", function () {
-
-        pagina = 0;
-        fim = false;
-
-        document.getElementById("catalogo").innerHTML = "";
-
-        carregarCervejas(this.value);
-    });
-
-    document.querySelector('[name="valorFrete"]')
-        ?.addEventListener("input", calcularTotal);
-
-    document.querySelector('[name="valorDesconto"]')
-        ?.addEventListener("input", calcularTotal);
-});

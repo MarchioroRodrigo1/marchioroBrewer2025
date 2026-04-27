@@ -3,10 +3,12 @@ package com.marchioro.brewer.model;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -63,7 +65,8 @@ public class Venda implements Serializable {
     @Column(nullable = false, length = 255)
     private String observacao;
 
-    @NotNull(message = "A data da entrega é obrigatória")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    //@NotNull(message = "A data da entrega é obrigatória")
     @Column(name = "data_entrega", nullable = false)
     private LocalDate dataEntrega;
 
@@ -80,12 +83,13 @@ public class Venda implements Serializable {
     private Cliente cliente;
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemVenda> itens;
+    private List<ItemVenda> itens = new ArrayList<>();
 
-    @NotNull(message = "O status da venda é obrigatório")
+   // @NotNull(message = "O status da venda é obrigatório")
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private StatusVenda status;
+    
 
     @Column(nullable = false)
     private Boolean ativo = true;
@@ -93,6 +97,7 @@ public class Venda implements Serializable {
     // ================= CONSTRUTOR =================
 
     public Venda() {
+    	this.status = StatusVenda.ORCAMENTO;
     }
 
     // ================= REGRA DE NEGÓCIO =================

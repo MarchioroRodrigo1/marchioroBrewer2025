@@ -1,260 +1,231 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	xmlns:th="http://www.thymeleaf.org"
-	layout:decorate="~{layout/LayoutPadrao}">
-<!-- Adicionado ~{} para versões mais novas -->
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" 
+      layout:decorate="~{layout/LayoutPadrao}">
 
 <head>
-<title>Vendas</title>
-<!-- O LayoutPadrao deve ter um layout:fragment="header-css" se quiser injetar isso aqui -->
-<link rel="stylesheet" type="text/css"
-	th:href="@{/layout/stylesheets/bootstrap-switch.min.css}" />
+    <title>Vendas</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/bootstrap-switch.min.css}" />
 </head>
 
 <body>
-	<section layout:fragment="conteudo">
+    <section layout:fragment="conteudo">
+        <div class="page-header">
+            <div class="container-fluid">
+                <h1>Vendas</h1>
+            </div>
+            <!-- Campo oculto para a mensagem -->
+            <input type="hidden" id="mensagemSucesso" th:if="${mensagemSucesso}" th:value="${mensagemSucesso}">
+        </div>
 
-		<div class="page-header">
-			<div class="container-fluid">
-				<h1>Vendas</h1>
-			</div>
-
-			<!-- Campo oculto para a mensagem -->
-			<input type="hidden" id="mensagemSucesso" th:if="${mensagemSucesso}"
-				th:value="${mensagemSucesso}">
-		</div>
-
-		<div class="container-fluid">
-			<!-- Mensagem de Alerta -->
-			<div th:if="${mensagem}" class="alert alert-success alerta-auto">
-				<span th:text="${mensagem}"></span>
-			</div>
-
-			<form method="POST" th:action="@{/vendas/novo}" th:object="${venda}">
-    <input type="hidden" th:field="*{id}" />
-
-    <!-- NAV TABS -->
-    <ul class="nav nav-tabs" id="tabsVenda">
-        <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" href="#cliente">Cliente</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#itens">Itens</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#pagamento">Pagamento</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" href="#nfe">NF-e</a>
-        </li>
-    </ul>
-
-    <div class="tab-content mt-3">
-
-        <!-- ================= CLIENTE ================= -->
-        <div class="tab-pane fade show active" id="cliente">
-
-    <!-- INPUT DE BUSCA -->
-    <div class="mb-3">
-        <label>Cliente</label>
-        <input type="text" id="clienteBusca" class="form-control" placeholder="Digite o nome do cliente..." autocomplete="off">
-        
-        <!-- ID REAL QUE VAI PRO BACKEND -->
-        <input type="hidden" th:field="*{cliente.id}" id="clienteId">
-        
-        <!-- SUGESTÕES -->
-        <div id="sugestoesClientes" class="list-group"></div>
-    </div>
-
-    <!-- DADOS DO CLIENTE -->
-    <div id="dadosCliente" style="display:none;">
-        <div class="row">
-            <div class="col-md-6">
-                <label>Documento</label>
-                <input type="text" id="clienteDocumento" class="form-control" readonly>
+        <div class="container-fluid">
+            <!-- Mensagem de Alerta -->
+            <div th:if="${mensagem}" class="alert alert-success alerta-auto">
+                <span th:text="${mensagem}"></span>
             </div>
 
-            <div class="col-md-6">
-                <label>Email</label>
-                <input type="text" id="clienteEmail" class="form-control" readonly>
+            <form id="formVenda" method="POST" th:action="@{/vendas/novo}" th:object="${venda}">
+           
+                <input type="hidden" th:field="*{id}" />
+
+                <!-- NAV TABS -->
+                <ul class="nav nav-tabs" id="tabsVenda">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#cliente">Cliente</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#itens">Itens</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#pagamento">Pagamento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#nfe">NF-e</a>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-3">
+                    <!-- ================= CLIENTE ================= -->
+                    <div class="tab-pane fade show active" id="cliente">
+                        <div class="mb-3">
+                            <label>Cliente</label>
+                            <input type="text" id="clienteBusca" class="form-control" placeholder="Digite o nome do cliente..." autocomplete="off">
+                            
+                            <!-- ID REAL QUE VAI PRO BACKEND -->
+                            <input type="hidden" th:field="*{cliente.id}" id="clienteId">
+                            
+                            <!-- SUGESTÕES -->
+                            <div id="sugestoesClientes" class="list-group"></div>
+                        </div>
+
+                        <!-- DADOS DO CLIENTE -->
+                        <div id="dadosCliente" style="display:none;">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Documento</label>
+                                    <input type="text" id="clienteDocumento" class="form-control" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Email</label>
+                                    <input type="text" id="clienteEmail" class="form-control" readonly>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <label>Telefone</label>
+                                    <input type="text" id="clienteTelefone" class="form-control" readonly>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Endereço</label>
+                                    <input type="text" id="clienteEndereco" class="form-control" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= ITENS ================= -->
+                    <div class="tab-pane fade" id="itens">
+                        <div class="row">
+                            <!-- CATÁLOGO -->
+                            <div class="col-md-8">
+                                <input type="text" id="buscaProduto" class="form-control mb-3" placeholder="Buscar cerveja...">
+                                
+                                <div id="catalogo-container" style="height: 500px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                                    <div id="catalogo" class="row"></div>
+                                    
+                                    <div id="loading" class="text-center mt-2" style="display:none;">
+                                        Carregando...
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CARRINHO -->
+                            <div class="col-md-4">
+                                <h5>Carrinho</h5>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Produto</th>
+                                            <th>Qtd</th>
+                                            <th>Valor</th>
+                                            <th>Total</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabela-itens"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= PAGAMENTO ================= -->
+                    <div class="tab-pane fade" id="pagamento">
+                        <div class="mb-3">
+                            <label>Forma de Pagamento</label>
+                            <select class="form-select" id="formaPagamento">
+                                <option value="avista">À vista</option>
+                                <option value="parcelado">Parcelado</option>
+                            </select>
+                        </div>
+                        
+                        <div id="parcelasDiv" style="display:none;">
+                            <label>Quantidade de Parcelas</label>
+                            <input type="number" class="form-control" id="qtdParcelas" />
+                            <button type="button" class="btn btn-info mt-2">Gerar Parcelas</button>
+                            <div id="listaParcelas" class="mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- ================= NFE ================= -->
+                    <div class="tab-pane fade" id="nfe">
+                        <h5>Nota Fiscal (Simulação)</h5>
+                        <button type="button" class="btn btn-secondary">Gerar NF-e Fake</button>
+                    </div>
+                </div>
+
+                <!-- ================= RESUMO ================= -->
+                <hr>
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Frete</label>
+                        <input type="text" th:field="*{valorFrete}" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label>Desconto</label>
+                        <input type="text" th:field="*{valorDesconto}" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label>Total</label>
+                        <input type="text" th:field="*{valorTotal}" class="form-control" readonly />
+                    </div>
+                    <div class="col-md-3">
+                        <label>Data de entrega</label>
+                        <input type="date" th:field="*{dataEntrega}" class="form-control">
+                    </div>
+                </div>
+ <div class="row mt-3">
+
+                <div class="col-md-6">
+                    <label>Vendedor</label>
+                    <select th:field="*{vendedor}" class="form-select">
+                        <option value="">Selecione</option>
+                        <option th:each="v : ${vendedores}"
+                                th:value="${v.id}"
+                                th:text="${v.nomeUsuario}">
+                        </option>
+                    </select>
+                </div>
+                
+                 <div class="col-md-6">
+                    <label>Status</label>
+                    <select th:field="*{status}" class="form-select">
+                        <option value="">Selecione</option>
+                        <option th:each="s : ${statusList}"
+                                th:value="${s}"
+                                th:text="${s}">
+                        </option>
+                    </select>
+                </div>
+                </div>
+               
+            
+
+                <div class="mt-3">
+                    <label>Observação</label>
+                    <textarea th:field="*{observacao}" class="form-control"></textarea>
+                </div>
+                <input type="hidden" id="itensJson" name="itensJson">
+
+                <button type="submit" class="btn btn-primary mt-3">Salvar</button>
+            </form>
+        </div>
+
+        <!-- MODAL DETALHE CERVEJA -->
+        <div class="modal fade" id="modalCerveja" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalTitulo"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-5 text-center">
+                                <img id="modalImagem" class="img-fluid rounded" style="max-height:300px; object-fit:contain;">
+                            </div>
+                            <div class="col-md-7">
+                                <p><strong>Descrição:</strong></p>
+                                <p id="modalDescricao"></p>
+                                <p><strong>Valor:</strong> R$ <span id="modalValor"></span></p>
+                                <p><strong>Teor alcoólico:</strong> <span id="modalTeor"></span>%</p>
+                                <p><strong>Estoque:</strong> <span id="modalEstoque"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="row mt-2">
-            <div class="col-md-6">
-                <label>Telefone</label>
-                <input type="text" id="clienteTelefone" class="form-control" readonly>
-            </div>
-
-            <div class="col-md-6">
-                <label>Endereço</label>
-                <input type="text" id="clienteEndereco" class="form-control" readonly>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-        <!-- ================= ITENS ================= -->
-<div class="tab-pane fade" id="itens">
-
-    <div class="row">
-
-        <!--CATÁLOGO -->
-      <div class="col-md-8">
-
-    <!-- CAMPO DE BUSCA -->
-    <input type="text" id="buscaProduto"
-           class="form-control mb-3"
-           placeholder="Buscar cerveja...">
-
-    <!-- CONTAINER COM SCROLL -->
-    <div id="catalogo-container" 
-         style="height: 500px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
-
-        <!-- CATÁLOGO -->
-        <div id="catalogo" class="row"></div>
-
-        <!-- LOADING -->
-        <div id="loading" class="text-center mt-2" style="display:none;">
-            Carregando...
-        </div>
-
-    </div>
-
-</div>
-
-        <!--ITENS -->
-        <div class="col-md-4">
-
-            <h5>Carrinho</h5>
-
-            <table class="table table-sm">
-                <thead>
-                     <tr>
-                <th>Produto</th>
-                <th>Qtd</th>
-                <th>Valor</th>
-                <th>Total</th>
-                <th></th>
-            </tr>
-                </thead>
-                <tbody id="tabela-itens"></tbody>
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-        <!-- ================= PAGAMENTO ================= -->
-        <div class="tab-pane fade" id="pagamento">
-
-            <div class="mb-3">
-                <label>Forma de Pagamento</label>
-                <select class="form-select" id="formaPagamento">
-                    <option value="avista">À vista</option>
-                    <option value="parcelado">Parcelado</option>
-                </select>
-            </div>
-
-            <div id="parcelasDiv" style="display:none;">
-                <label>Quantidade de Parcelas</label>
-                <input type="number" class="form-control" id="qtdParcelas" />
-
-                <button type="button" class="btn btn-info mt-2">
-                    Gerar Parcelas
-                </button>
-
-                <div id="listaParcelas" class="mt-3"></div>
-            </div>
-
-        </div>
-
-        <!-- ================= NFE ================= -->
-        <div class="tab-pane fade" id="nfe">
-
-            <h5>Nota Fiscal (Simulação)</h5>
-
-            <button type="button" class="btn btn-secondary">
-                Gerar NF-e Fake
-            </button>
-
-        </div>
-
-    </div>
-
-    <!-- ================= RESUMO ================= -->
-    <hr>
-
-    <div class="row">
-        <div class="col-md-3">
-            <label>Frete</label>
-            <input type="text" th:field="*{valorFrete}" class="form-control" />
-        </div>
-
-        <div class="col-md-3">
-            <label>Desconto</label>
-            <input type="text" th:field="*{valorDesconto}" class="form-control" />
-        </div>
-
-        <div class="col-md-3">
-            <label>Total</label>
-            <input type="text" th:field="*{valorTotal}" class="form-control" readonly />
-        </div>
-    </div>
-
-    <div class="mt-3">
-        <label>Observação</label>
-        <textarea th:field="*{observacao}" class="form-control"></textarea>
-    </div>
-
-    <button type="submit" class="btn btn-primary mt-3">Salvar</button>
-</form>
-        </div>
-        
-        
-    <!-- MODAL DETALHE CERVEJA -->
-<div class="modal fade" id="modalCerveja" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalTitulo"></h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-
-        <div class="row">
-          
-          <div class="col-md-5 text-center">
-            <img id="modalImagem" class="img-fluid rounded"
-                 style="max-height:300px; object-fit:contain;">
-          </div>
-
-          <div class="col-md-7">
-
-            <p><strong>Descrição:</strong></p>
-            <p id="modalDescricao"></p>
-
-            <p><strong>Valor:</strong> R$ <span id="modalValor"></span></p>
-
-            <p><strong>Teor alcoólico:</strong> <span id="modalTeor"></span>%</p>
-
-            <p><strong>Estoque:</strong> <span id="modalEstoque"></span></p>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-  </div>
-</div>
-    </section> 
+    </section>
 </body>
 </html>

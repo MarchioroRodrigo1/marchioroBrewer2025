@@ -229,5 +229,19 @@ public class ClienteController {
      return clienteRepository
          .findByNomeClienteContainingIgnoreCaseAndAtivoTrue(nome);
  }
+ 
+ /**
+  * Busca um cliente pelo seu identificador único (ID).
+  * 
+  * @param id O ID do cliente a ser buscado.
+  * @return O objeto Cliente correspondente se for encontrado.
+  * @throws RuntimeException Caso nenhum cliente seja localizado com o ID informado.
+  */
+ @GetMapping("/{id}")
+ @ResponseBody
+ public Cliente buscarPorId(@PathVariable Long id) {
+     return clienteRepository.findById(id)
+             .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+ }
 
 }

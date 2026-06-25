@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -89,6 +91,7 @@ public class Cerveja {
     private Integer quantidadeEstoque;
     
     // Uma cerveja pode estar em muitos itens de venda
+    @JsonIgnore
     @OneToMany(mappedBy = "cerveja")
     private List<ItemVenda> itensVenda;
     

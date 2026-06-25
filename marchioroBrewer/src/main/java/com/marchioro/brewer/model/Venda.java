@@ -236,4 +236,10 @@ public class Venda implements Serializable {
         Venda other = (Venda) obj;
         return Objects.equals(id, other.id);
     }
+    @Override
+    public String toString(){
+        return "Venda{id=" + id +
+               ", itens=" + itens.size() +
+               "}";
+    }
 }

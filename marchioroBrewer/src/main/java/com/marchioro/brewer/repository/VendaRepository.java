@@ -14,6 +14,17 @@ import com.marchioro.brewer.model.Cliente;
 import com.marchioro.brewer.model.Venda;
 
 public interface VendaRepository extends JpaRepository<Venda, Long> {
+	
+	@Query("""
+		    SELECT DISTINCT v
+		    FROM Venda v
+		    JOIN FETCH v.cliente
+		    JOIN FETCH v.vendedor
+		    LEFT JOIN FETCH v.itens i
+		    LEFT JOIN FETCH i.cerveja
+		    WHERE v.id = :id
+		""")
+		Venda buscarVendaCompleta(Long id);
 
     Page<Venda> findByAtivoTrue(Pageable pageable);
 

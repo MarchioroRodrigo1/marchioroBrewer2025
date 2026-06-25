@@ -28,6 +28,7 @@
             <form id="formVenda" method="POST" th:action="@{/vendas/novo}" th:object="${venda}">
            
                 <input type="hidden" th:field="*{id}" />
+                <input type="hidden" id="itensCarrinho" th:value="${itensCarrinho}">
 
                 <!-- NAV TABS -->
                 <ul class="nav nav-tabs" id="tabsVenda">
@@ -195,7 +196,7 @@
                     <label>Observação</label>
                     <textarea th:field="*{observacao}" class="form-control"></textarea>
                 </div>
-                <input type="hidden" id="itensJson" name="itensJson">
+                <input type="hidden" id="itensJson"  name="itensJson" th:value="${itensJson}">
 
                 <button type="submit" class="btn btn-primary mt-3">Salvar</button>
             </form>

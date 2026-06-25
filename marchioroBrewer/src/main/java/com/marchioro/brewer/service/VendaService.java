@@ -49,4 +49,9 @@ public class VendaService {
         venda.setAtivo(false);
         repository.save(venda);
     }
+    
+    public Venda buscarVendaCompleta(Long id){
+
+        return repository.buscarVendaCompleta(id);
+    }
 }

@@ -4,13 +4,47 @@ let fim = false;
 
 let itens = [];
 
+function carregarItensCarrinho() {
+
+    const hidden =
+        document.getElementById("itensCarrinho");
+
+    if (!hidden || !hidden.value) {
+        return;
+    }
+
+
+    try {
+
+        itens = JSON.parse(hidden.value).map(i => ({
+            id: i.id,
+            nome: i.nome,
+            valor: Number(i.valor),
+            quantidade: i.quantidade,
+            estoque: i.estoque,
+            urlImagem: i.urlImagem
+        }));
+
+        atualizarTabela();
+
+    } catch(e) {
+
+        console.error(
+          "Erro carregando carrinho",
+          e
+        );
+    }
+}
+
 // ============================
 // INIT
 // ============================
 document.addEventListener("DOMContentLoaded", () => {
 
+	carregarItensCarrinho();
+	
     carregarCervejas();
-
+	
     // SCROLL
     document.getElementById("catalogo-container")
         ?.addEventListener("scroll", function () {

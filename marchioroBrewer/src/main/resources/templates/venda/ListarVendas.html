@@ -41,7 +41,7 @@
                     <td th:text="${venda.cliente.nomeCliente}"></td>
                     <td th:text="${venda.vendedor.nomeUsuario}"></td>
                     <td th:text="${#temporals.format(venda.dataCriacao, 'dd/MM/yyyy')}"></td>
-                    <td th:text="${venda.status}"></td>
+                    <td th:text="${venda.status}"></td>                   
                     <td th:text="${#numbers.formatDecimal(venda.valorTotal,1,'POINT',2,'COMMA')}"></td>
 
                     <td class="text-center">

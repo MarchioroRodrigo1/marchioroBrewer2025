@@ -77,68 +77,20 @@ public class VendasController {
                          Model model,
                          RedirectAttributes attributes) {
 
-        // 1. Processar o JSON de itens enviado pelo JavaScript do front-end
-        if (itensJson != null && !itensJson.trim().isEmpty()) {
-            try {
-                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
-                
-                // Converte a string JSON usando o SEU ItemVendaDTO já existente
-                java.util.List<ItemVendaDTO> dtos = mapper.readValue(itensJson, 
-                    new com.fasterxml.jackson.core.type.TypeReference<java.util.List<ItemVendaDTO>>() {});
-
-                // Limpa a lista atual da venda para evitar duplicidade
-                venda.getItens().clear();
-
-                // Percorre os itens vindos da tela e monta as entidades JPA
-                for (ItemVendaDTO dto : dtos) {
-                    ItemVenda item = new ItemVenda();
-                    
-                   
-                    Cerveja cerveja = cervejasRepository.findById(dto.getId())
-                        .orElseThrow(() -> new RuntimeException("Produto não encontrado. ID: " + dto.getId()));
-                    
-                    
-                    item.setCerveja(cerveja); 
-                    item.setQuantidade(dto.getQuantidade());
-                    // Convertendo o Double do seu DTO para BigDecimal que sua entidade Venda espera
-                    item.setValorUnitario(BigDecimal.valueOf(dto.getValor()));
-                    
-                    // IMPORTANTE: Define o relacionamento bidirecional para o Hibernate salvar o venda_id
-                    item.setVenda(venda); 
-
-                    venda.getItens().add(item);
-                }
-
-                // Recalcula o valor total da venda no Java por segurança
-                venda.calcularTotal();
-
-            } catch (Exception e) {
-                // Caso ocorra algum erro na conversão do JSON
-                result.rejectValue("itens", "error.itens", "Erro ao processar os itens da venda: " + e.getMessage());
-            }
-        }
-
-        // 2. Se houver erros de validação (Campos obrigatórios vazios, etc.)
         if (result.hasErrors()) {
+
             model.addAttribute("clientes", clienteRepository.findByAtivoTrue());
             model.addAttribute("vendedores", usuarioRepository.findByAtivoTrue());
             model.addAttribute("statusList", StatusVenda.values());
+
             return "venda/CadastroVenda";
         }
 
-        // 3. Salva a venda e seus itens de forma cascata
-        vendaService.salvar(venda);
-        
-       // attributes.addFlashAttribute("mensagem", "Venda salva com sucesso!");
-   
-        // Define data
-        venda.setDataCriacao(LocalDate.now());
+        vendaService.salvar(venda, itensJson);
 
-        vendaService.salvar(venda);
-
-        attributes.addFlashAttribute("mensagemSucesso", "Venda salva com sucesso!");
-        
-        System.out.println("JSON RECEBIDO: " + itensJson);
+        attributes.addFlashAttribute(
+                "mensagemSucesso",
+                "Venda salva com sucesso!");
 
         return "redirect:/vendas";
     }
@@ -170,18 +122,18 @@ public class VendasController {
         ObjectMapper mapper = new ObjectMapper();
 
         String itensJson = mapper.writeValueAsString(
-                venda.getItens().stream()
-                        .map(item -> Map.of(
-                                "id", item.getCerveja().getId(),
-                                "nome", item.getCerveja().getNome(),
-                                "valor", item.getValorUnitario(),
-                                "quantidade", item.getQuantidade(),
-                                "estoque", item.getCerveja().getQuantidadeEstoque(),
-                                "urlImagem", item.getCerveja().getUrlImagem()
-                                
-                        ))
-                        .toList()
-        );
+        	    venda.getItens().stream()
+        	        .map(item -> Map.of(
+        	            "itemId", item.getId(),
+        	            "id", item.getCerveja().getId(),
+        	            "nome", item.getCerveja().getNome(),
+        	            "valor", item.getValorUnitario(),
+        	            "quantidade", item.getQuantidade(),
+        	            "estoque", item.getCerveja().getQuantidadeEstoque(),
+        	            "urlImagem", item.getCerveja().getUrlImagem()
+        	        ))
+        	        .toList()
+        	);
 
         model.addAttribute("clientes", clienteRepository.findByAtivoTrue());
         model.addAttribute("vendedores", usuarioRepository.findByAtivoTrue());

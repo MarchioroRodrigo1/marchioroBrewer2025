@@ -1,12 +1,27 @@
 package com.marchioro.brewer.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+
 public class ItemVendaDTO {
 
+	private Long itemId;
     private Long id;
     private String nome;
     private Double valor;
     private Integer quantidade;
     private Integer estoque;
+    
+    
+    public Long getItemId() {
+        return itemId;
+    }
+
+    public void setItemId(Long itemId) {
+        this.itemId = itemId;
+    }
+    
 	public Integer getEstoque() {
 		return estoque;
 	}
@@ -36,7 +51,5 @@ public class ItemVendaDTO {
 	}
 	public void setQuantidade(Integer quantidade) {
 		this.quantidade = quantidade;
-	}
-    
-    
+	}   
 }

@@ -101,7 +101,7 @@ public class Venda implements Serializable {
     }
 
     // ================= REGRA DE NEGÓCIO =================
-
+/*
     public void calcularTotal() {
 
         BigDecimal totalItens = BigDecimal.ZERO;
@@ -121,7 +121,47 @@ public class Venda implements Serializable {
 
         this.valorTotal = totalItens.add(frete).subtract(desconto);
     }
+*/
+    //remover esse metodo depois usdo para teste
+    public void calcularTotal() {
 
+        BigDecimal totalItens = BigDecimal.ZERO;
+
+        System.out.println("========== CALCULANDO ==========");
+
+        if (itens != null) {
+
+            for (ItemVenda item : itens) {
+
+                System.out.println("Valor Unitario = " + item.getValorUnitario());
+                System.out.println("Quantidade     = " + item.getQuantidade());
+
+                BigDecimal totalItem =
+                        item.getValorUnitario()
+                                .multiply(BigDecimal.valueOf(item.getQuantidade()));
+
+                System.out.println("Total Item     = " + totalItem);
+
+                totalItens = totalItens.add(totalItem);
+            }
+        }
+
+        System.out.println("Soma Itens     = " + totalItens);
+
+        BigDecimal frete =
+                valorFrete != null ? valorFrete : BigDecimal.ZERO;
+
+        BigDecimal desconto =
+                valorDesconto != null ? valorDesconto : BigDecimal.ZERO;
+
+        System.out.println("Frete          = " + frete);
+        System.out.println("Desconto       = " + desconto);
+
+        this.valorTotal = totalItens.add(frete).subtract(desconto);
+
+        System.out.println("Valor Total    = " + valorTotal);
+    }
+    //fim remover
     // ================= GETTERS E SETTERS =================
 
     public Long getId() {
@@ -201,7 +241,30 @@ public class Venda implements Serializable {
     }
 
     public void setItens(List<ItemVenda> itens) {
-        this.itens = itens;
+
+        this.itens.clear();
+
+        if (itens != null) {
+
+            itens.forEach(this::adicionarItem);
+
+        }
+    }
+    
+    public void adicionarItem(ItemVenda item) {
+
+        item.setVenda(this);
+
+        this.itens.add(item);
+
+    }
+
+    public void removerItem(ItemVenda item) {
+
+        item.setVenda(null);
+
+        this.itens.remove(item);
+
     }
 
     public StatusVenda getStatus() {

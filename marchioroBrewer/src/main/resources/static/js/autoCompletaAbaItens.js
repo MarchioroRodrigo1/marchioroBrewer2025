@@ -17,6 +17,7 @@ function carregarItensCarrinho() {
     try {
 
         itens = JSON.parse(hidden.value).map(i => ({
+			itemId: i.itemId,
             id: i.id,
             nome: i.nome,
             valor: Number(i.valor),

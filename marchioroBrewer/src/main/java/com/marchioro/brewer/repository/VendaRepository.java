@@ -1,16 +1,14 @@
 package com.marchioro.brewer.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
-import com.marchioro.brewer.model.Cliente;
 import com.marchioro.brewer.model.Venda;
 
 public interface VendaRepository extends JpaRepository<Venda, Long> {
